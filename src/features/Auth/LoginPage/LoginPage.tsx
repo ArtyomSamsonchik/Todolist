@@ -78,7 +78,7 @@ const LoginPage = () => {
                             variant="contained"
                             type="submit"
                             sx={{mt: 0.5}}
-                            disabled={!formik.isValid}
+                            disabled={!formik.isValid || formik.isSubmitting}
                         >
                             Login
                         </Button>

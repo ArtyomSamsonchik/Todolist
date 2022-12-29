@@ -33,9 +33,9 @@ export const logout = () => ({
     type: "auth/logout"
 }) as const
 
-export const loginTC = (config: LoginConfigType): AppThunk => dispatch => {
+export const loginTC = (config: LoginConfigType): AppThunk<Promise<void>> => dispatch => {
     dispatch(setAppStatus("loading"))
-    authAPI.login(config)
+    return authAPI.login(config)
         .then(({data}) => {
             if (data.resultCode === ResultCode.Ok) {
                 dispatch(login())
