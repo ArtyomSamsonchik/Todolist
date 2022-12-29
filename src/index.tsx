@@ -1,19 +1,44 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import App from './app/App';
+import {Provider} from "react-redux";
+import store from "./app/store";
+import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
+import TodolistList from "./features/Todolist/TodolistList";
+import LoginPage from "./features/Auth/LoginPage/LoginPage";
 
 const root = ReactDOM.createRoot(
-  document.getElementById('root') as HTMLElement
-);
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+    document.getElementById('root') as HTMLElement
+)
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <App/>,
+        children: [
+            {
+                path: "/",
+                element: <TodolistList/>
+            },
+            {
+                path: "/login",
+                element: <LoginPage/>
+            },
+            {
+                path: "/404",
+                element: <h1>404 Page not found</h1>
+            },
+            {
+                path: "*",
+                element: <Navigate to="/404"/>
+            }
+        ]
+    }
+])
+
+root.render(
+    <Provider store={store}>
+        <RouterProvider router={router}/>
+    </Provider>
+)
