@@ -78,7 +78,7 @@ const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
                     <ListItem component="div">
                         <ButtonGroup sx={{
                             width: 1,
-                            '& 	.MuiButton-root': {
+                            '& .MuiButton-root': {
                                 flex: "1 1 auto"
                             }
                         }}>

@@ -49,7 +49,7 @@ const LoginPage = () => {
                 return (
                     <Container component="form" maxWidth="xs" onSubmit={formik.handleSubmit}>
                         <FormLabel>
-                            <Typography variant="body1" mb={2}>
+                            <Typography variant="body1" mb={2} sx={{lineHeight: 1.7}}>
                                 To log in get registered
                                 <a
                                     href='https://social-network.samuraijs.com/'
