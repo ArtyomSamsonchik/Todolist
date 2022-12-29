@@ -100,7 +100,6 @@ export const fetchTasksTC = (todoId: string): AppThunk => dispatch => {
 
 export const addTaskTC = (todoId: string, title: string): AppThunk<Promise<void>> => dispatch => {
     dispatch(setAppStatus("loading"))
-
     return taskAPI.addTask(todoId, title)
         .then(({data}) => {
             if (data.resultCode === ResultCode.Ok) {
@@ -131,6 +130,7 @@ export const deleteTaskTC = (todoId: string, taskId: string): AppThunk => dispat
         })
         .catch((e: Error | AxiosError) => {
             handleError(e, dispatch)
+            dispatch(setTaskStatus(todoId, taskId, "failure"))
         })
 }
 

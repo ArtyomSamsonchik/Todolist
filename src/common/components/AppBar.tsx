@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
@@ -8,12 +8,15 @@ import Button from "@mui/material/Button";
 import ProgressBar from "./ProgressBar/ProgressBar";
 
 const AppBar = React.memo(() => {
-
+    const [buttonDisabled, setButtonDisabled] = useState(false)
     const isLoggedIn = useAppSelector(selectIsLoggedIn)
     const dispatch = useAppDispatch()
 
     const handleLogout = () => {
-        dispatch(logoutTC())
+        setButtonDisabled(true)
+        dispatch(logoutTC()).then(() => {
+            setButtonDisabled(false)
+        })
     }
 
     return (
@@ -23,10 +26,11 @@ const AppBar = React.memo(() => {
                     <Button
                         color="inherit"
                         size="large"
+                        disabled={buttonDisabled}
                         sx={{ml: {sx: 0, sm: 3}}}
                         onClick={handleLogout}
                     >
-                        Logout
+                        Log out
                     </Button>
                 )}
                 <Typography

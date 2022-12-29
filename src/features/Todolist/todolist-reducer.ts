@@ -106,6 +106,7 @@ export const deleteTodolistTC = (todoId: string): AppThunk => dispatch => {
         })
         .catch((e: Error | AxiosError) => {
             handleError(e, dispatch)
+            dispatch(setTodolistStatus(todoId, "failure"))
         })
 }
 

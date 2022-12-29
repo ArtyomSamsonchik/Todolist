@@ -13,6 +13,8 @@ import {useAppDispatch, useAppSelector} from "../../../common/hooks/hooks";
 import {loginTC, selectIsLoggedIn} from "../auth-reducer";
 import {validateLogin} from "../../../common/utils/validateLogin";
 import LoginFormInput from "./LoginFormInput/LoginFormInput";
+import FormLabel from "@mui/material/FormLabel";
+import Typography from "@mui/material/Typography";
 
 export type FormValues = {
     email: string,
@@ -46,15 +48,41 @@ const LoginPage = () => {
             {(formik) => {
                 return (
                     <Container component="form" maxWidth="xs" onSubmit={formik.handleSubmit}>
-                        <LoginFormInput name="email" label="email"/>
+                        <FormLabel>
+                            <Typography variant="body1" mb={2}>
+                                To log in get registered
+                                <a
+                                    href='https://social-network.samuraijs.com/'
+                                    target='_blank'
+                                    rel='noreferrer'
+                                >
+                                    here
+                                </a>
+                                <br/>
+                                or use common test account credentials:
+                                <br/>
+                                Email: free@samuraijs.com
+                                <br/>
+                                Password: free
+                            </Typography>
+                        </FormLabel>
+                        <LoginFormInput
+                            name="email"
+                            label="email"
+                            disabled={formik.isSubmitting}
+                        />
                         <LoginFormInput
                             name="password"
                             label="password"
                             type={isVisible ? "text" : "password"}
+                            disabled={formik.isSubmitting}
                             InputProps={{
                                 endAdornment: (
                                     <InputAdornment position="end">
-                                        <IconButton onClick={toggleIsVisible}>
+                                        <IconButton
+                                            disabled={formik.isSubmitting}
+                                            onClick={toggleIsVisible}
+                                        >
                                             {isVisible ? <VisibilityOff/> : <Visibility/>}
                                         </IconButton>
                                     </InputAdornment>
@@ -66,6 +94,7 @@ const LoginPage = () => {
                             sx={{mt: 1, mb: 0.5}}
                             control={
                                 <Checkbox
+                                    disabled={formik.isSubmitting}
                                     checked={formik.values.rememberMe}
                                     {...formik.getFieldProps("rememberMe")}
                                 />
