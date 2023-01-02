@@ -2,14 +2,13 @@ import React, {useCallback, useEffect} from 'react';
 import {useAppDispatch, useAppSelector} from "../../common/hooks/hooks";
 import {addTodolistTC, fetchTodolistsTC, selectTodolistIds} from "./todolist-reducer";
 import Todolist from "./Todolist";
-import {shallowEqual} from "react-redux";
 import {Grid} from "@mui/material";
 import AddItemForm from "../../common/components/AddItemForm/AddItemForm";
 import {selectIsLoggedIn} from "../Auth/auth-reducer";
 import {Navigate} from "react-router-dom";
 
 const TodolistList = React.memo(() => {
-    const todoIds = useAppSelector(selectTodolistIds, shallowEqual)
+    const todoIds = useAppSelector(selectTodolistIds)
     const isLoggedIn = useAppSelector(selectIsLoggedIn)
     const dispatch = useAppDispatch()
 

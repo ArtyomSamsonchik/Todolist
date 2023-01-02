@@ -4,6 +4,8 @@ import {AppThunk, RootStateType} from "../../app/store";
 import {RequestStatusType, setAppStatus} from "../../app/app-reducer";
 import {handleError} from "../../common/utils/handleErrors";
 import {AxiosError} from "axios";
+import {createSelector} from "reselect";
+import {shallowEqual} from "react-redux";
 
 const taskReducer = (state: TasksStateType = {}, action: TaskActionsType): TasksStateType => {
     switch (action.type) {
@@ -136,7 +138,7 @@ export const deleteTaskTC = (todoId: string, taskId: string): AppThunk => dispat
 
 export const updateTaskTC = (todoId: string, taskId: string, patch: Partial<TaskModelType>): AppThunk =>
     (dispatch, getState) => {
-        const task = selectTask(todoId, taskId)(getState())
+        const task = selectTask(getState(), todoId, taskId)
         const model: TaskModelType = {
             description: task.description,
             title: task.title,
@@ -166,27 +168,41 @@ export const updateTaskTC = (todoId: string, taskId: string, patch: Partial<Task
             })
     }
 
-export const selectAllTasks = (todoId: string) => (state: RootStateType) => state.tasks[todoId]
-export const selectFilteredTasks = (todoId: string, filter: FilterType) => {
-    return (state: RootStateType) => {
-        let tasks = selectAllTasks(todoId)(state)
-        if (filter === "active") {
-            tasks = tasks.filter(t => t.status === TaskStatus.Uncompleted)
-        } else if (filter === "completed") {
-            tasks = tasks.filter(t => t.status === TaskStatus.Completed)
-        }
+export const selectTasks = (state: RootStateType, todoId: string) => state.tasks[todoId]
 
-        return tasks
-    }
+//Use this factory inside useMemo in Todolist component to provide every Todolist
+//instance his own selector.
+export const filteredTasksSelectorFactory = () => {
+    const selectFilteredTasks = createSelector(
+        (state: RootStateType, todoId: string) => selectTasks(state, todoId),
+        (state: RootStateType, todoId: string, filter: FilterType) => filter,
+        (tasks, filter) => {
+            if (filter === "active") {
+                return tasks.filter(t => t.status === TaskStatus.Uncompleted)
+            }
+            if (filter === "completed") {
+                return tasks.filter(t => t.status === TaskStatus.Completed)
+            }
+
+            return tasks
+        }
+    )
+
+    const selectFilteredTaskIds = createSelector(
+        selectFilteredTasks,
+        tasks => tasks.map(t => t.id),
+        {
+            memoizeOptions: {
+                resultEqualityCheck: shallowEqual
+            }
+        }
+    )
+
+    return {selectFilteredTasks, selectFilteredTaskIds}
 }
-export const selectTaskIds = (todoId: string, filter?: FilterType) => (state: RootStateType) => {
-    const tasks = filter
-        ? selectFilteredTasks(todoId, filter)(state)
-        : selectAllTasks(todoId)(state)
-    return tasks.map(t => t.id)
-}
-export const selectTask = (todoId: string, taskId: string) => (state: RootStateType) => {
-    return selectAllTasks(todoId)(state).find(t => t.id === taskId) as TaskDomainType
+
+export const selectTask = (state: RootStateType, todoId: string, taskId: string) => {
+    return selectTasks(state, todoId).find(t => t.id === taskId) as TaskDomainType
 }
 
 export default taskReducer

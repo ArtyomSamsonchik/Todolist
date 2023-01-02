@@ -16,7 +16,7 @@ type TaskProps = {
 }
 
 const Task: FC<TaskProps> = React.memo(({todoId, taskId}) => {
-    const task = useAppSelector(selectTask(todoId, taskId))
+    const task = useAppSelector(state => selectTask(state, todoId, taskId))
     const dispatch = useAppDispatch()
 
     const handleDeleteTaskClick = () => {

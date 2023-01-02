@@ -3,6 +3,8 @@ import {AppThunk, RootStateType} from "../../app/store";
 import {RequestStatusType, setAppStatus} from "../../app/app-reducer";
 import {AxiosError} from "axios";
 import {handleError} from "../../common/utils/handleErrors";
+import {createSelector} from "reselect";
+import {shallowEqual} from "react-redux";
 
 
 const todolistReducer = (state: TodolistDomainType[] = [], action: TodolistActionsType): TodolistDomainType[] => {
@@ -131,10 +133,16 @@ export const updateTodolistTitleTC = (todoId: string, title: string): AppThunk =
 }
 
 export const selectAllTodolists = (state: RootStateType) => state.todolists
-export const selectTodolistIds = (state: RootStateType) => {
-    return selectAllTodolists(state).map(tl => tl.id)
-}
-export const selectTodolist = (todoId: string) => (state: RootStateType) => {
+
+export const selectTodolistIds = createSelector(
+    selectAllTodolists,
+    todolists => todolists.map(tl => tl.id),
+    {
+        memoizeOptions: {resultEqualityCheck: shallowEqual}
+    }
+)
+
+export const selectTodolist = (state: RootStateType, todoId: string) => {
     return selectAllTodolists(state).find(tl => tl.id === todoId) as TodolistDomainType
 }
 

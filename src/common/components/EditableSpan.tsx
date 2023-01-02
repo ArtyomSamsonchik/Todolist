@@ -1,6 +1,6 @@
 import React, {ChangeEvent, FC, useState} from 'react';
-import {Input, Typography} from "@mui/material";
-import {TypographyProps} from "@mui/material/Typography/Typography";
+import {default as Typography, TypographyProps} from "@mui/material/Typography";
+import Input from "@mui/material/Input";
 
 type EditableSpanProps = {
     children: string
@@ -9,7 +9,6 @@ type EditableSpanProps = {
 } & TypographyProps
 
 const EditableSpan: FC<EditableSpanProps> = React.memo((props) => {
-    console.log("editable span")
     const {children, changeTitle, disabled, ...restProps} = props
     const [title, setTitle] = useState(children)
     const [editMode, setEditMode] = useState(false)

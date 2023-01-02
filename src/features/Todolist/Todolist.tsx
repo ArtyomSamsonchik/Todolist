@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useEffect} from 'react';
+import React, {FC, useCallback, useEffect, useMemo} from 'react';
 import Grid from "@mui/material/Grid";
 import List from "@mui/material/List";
 import Paper from "@mui/material/Paper";
@@ -10,8 +10,11 @@ import {useAppDispatch, useAppSelector} from "../../common/hooks/hooks";
 import {deleteTodolistTC, FilterType, selectTodolist, updateTodolist, updateTodolistTitleTC} from "./todolist-reducer";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditableSpan from "../../common/components/EditableSpan";
-import {addTaskTC, fetchTasksTC, selectTaskIds} from "../Task/task-reducer";
-import {shallowEqual} from "react-redux";
+import {
+    addTaskTC,
+    fetchTasksTC,
+    filteredTasksSelectorFactory
+} from "../Task/task-reducer";
 import Button from "@mui/material/Button";
 
 type TodolistProps = {
@@ -19,8 +22,9 @@ type TodolistProps = {
 }
 
 const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
-    const todo = useAppSelector(selectTodolist(todoId))
-    const taskIds = useAppSelector(selectTaskIds(todoId, todo.filter), shallowEqual)
+    const todo = useAppSelector(state => selectTodolist(state, todoId))
+    const {selectFilteredTaskIds} = useMemo(filteredTasksSelectorFactory, [])
+    const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todo.filter))
     const dispatch = useAppDispatch()
 
     useEffect(() => {
