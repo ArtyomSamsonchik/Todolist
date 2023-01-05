@@ -22,16 +22,16 @@ const router = createBrowserRouter([
                 element: <TodolistList/>
             },
             {
-                path: "/Todolist/login",
+                path: "login",
                 element: <LoginPage/>
             },
             {
-                path: "/Todolist/404",
+                path: "404",
                 element: <h1>404 Page not found</h1>
             },
             {
-                path: "/Todolist/*",
-                element: <Navigate to="/Todolist/404"/>
+                path: "*",
+                element: <Navigate to="404"/>
             }
         ]
     }
