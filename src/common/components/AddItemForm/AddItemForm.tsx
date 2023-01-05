@@ -10,18 +10,22 @@ export type AddItemFormValues = { title: string }
 type AddItemFormProps = {
     sx?: SxProps<Theme>
     label?: string
+    disabled?: boolean
     addItemCallback: (title: string) => Promise<any>
 }
 
 const propsEqualityFn = <T extends AddItemFormProps>(prevProps: T, nextProps: T) => {
-    if (prevProps.sx && nextProps.sx) {
-        return shallowEqual(prevProps.sx, nextProps.sx)
-    }
-    return shallowEqual(prevProps, nextProps)
+    const {sx: prevSx, ...restPrevProps} = prevProps
+    const {sx: nextSx, ...restNextProps} = nextProps
+
+    return shallowEqual(prevSx, nextSx)
+        && shallowEqual(restPrevProps, restNextProps)
 }
 
 
-const AddItemForm: FC<AddItemFormProps> = React.memo(({addItemCallback, label, sx}) => {
+const AddItemForm: FC<AddItemFormProps> = React.memo((props) => {
+    console.log('addItem form')
+    const {sx, addItemCallback, label, disabled} = props
     const validate = ({title}: AddItemFormValues) => {
         const errors: { title?: string } = {}
         if (!title) errors.title = "Title should not be empty"
@@ -51,10 +55,10 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(({addItemCallback, label, s
                         alignItems="center"
                         onSubmit={handleSubmit}
                     >
-                        <AddItemInput sx={sx} label={label}/>
+                        <AddItemInput sx={sx} label={label} disabled={disabled}/>
                         <IconButton
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isSubmitting || disabled}
                             color="primary"
                         >
                             <AddBoxIcon/>

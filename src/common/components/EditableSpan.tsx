@@ -35,7 +35,13 @@ const EditableSpan: FC<EditableSpanProps> = React.memo((props) => {
                  onChange={handleChange}
                  onBlur={disableEditMode}
         />
-        : <Typography noWrap component="span" {...restProps} onDoubleClick={activateEditMode}>
+        : <Typography
+            noWrap
+            component="span"
+            {...restProps}
+            color={`text.${disabled ? "disabled" : "primary"}`}
+            onDoubleClick={activateEditMode}
+        >
             {title}
         </Typography>
 

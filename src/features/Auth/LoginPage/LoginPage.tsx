@@ -55,8 +55,9 @@ const LoginPage = () => {
                                     href='https://social-network.samuraijs.com/'
                                     target='_blank'
                                     rel='noreferrer'
+                                    style={{marginLeft: 6}}
                                 >
-                                    here
+                                   here
                                 </a>
                                 <br/>
                                 or use common test account credentials:

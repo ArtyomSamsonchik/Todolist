@@ -1,5 +1,5 @@
 import {ResultCode, taskAPI, TaskModelType, TaskStatus, TaskType} from "../../app/api";
-import {AddTodolistAT, FilterType, InitTodolistsAT} from "../Todolist/todolist-reducer";
+import {AddTodolistAT, FilterType, InitTodolistsAT, setTodolistStatus} from "../Todolist/todolist-reducer";
 import {AppThunk, RootStateType} from "../../app/store";
 import {RequestStatusType, setAppStatus} from "../../app/app-reducer";
 import {handleError} from "../../common/utils/handleErrors";
@@ -86,10 +86,14 @@ export const cleanTasks = () => ({
 }) as const
 
 export const fetchTasksTC = (todoId: string): AppThunk => dispatch => {
+    dispatch(setAppStatus("loading"))
+    dispatch(setTodolistStatus(todoId, "loading"))
     taskAPI.getTasks(todoId)
         .then(({data}) => {
             if (!data.error) {
                 dispatch(initTasks(todoId, data.items))
+                dispatch(setAppStatus("success"))
+                dispatch(setTodolistStatus(todoId, "success"))
             } else {
                 const message = data.error || "Something went wrong!"
                 throw new Error(message)
@@ -97,6 +101,7 @@ export const fetchTasksTC = (todoId: string): AppThunk => dispatch => {
         })
         .catch((e) => {
             handleError(e, dispatch)
+            dispatch(setTodolistStatus(todoId, "failure"))
         })
 }
 

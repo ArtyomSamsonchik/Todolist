@@ -6,9 +6,11 @@ import {AddItemFormValues} from "./AddItemForm";
 type AddItemInputProps = {
     sx?: SxProps<Theme>
     label?: string
+    disabled?: boolean
 }
 
-const AddItemInput: FC<AddItemInputProps> = ({sx, label}) => {
+const AddItemInput: FC<AddItemInputProps> = (props) => {
+    const {sx, label, disabled} = props
     const {
         errors,
         values,
@@ -38,7 +40,7 @@ const AddItemInput: FC<AddItemInputProps> = ({sx, label}) => {
             sx={{width: "300px", ...sx}}
             error={!!errors.title}
             label={errors.title ? errors.title : label}
-            disabled={isSubmitting}
+            disabled={isSubmitting || disabled}
             name="title"
             value={values.title}
             onChange={handleInputChange(setErrors, handleChange)}
