@@ -87,7 +87,7 @@ export const cleanTasks = () => ({
 
 export const fetchTasksTC = (todoId: string): AppThunk => dispatch => {
     dispatch(setAppStatus("loading"))
-    dispatch(setTodolistStatus(todoId, "loading"))
+    dispatch(setTodolistStatus(todoId, "fetchingTasks"))
     taskAPI.getTasks(todoId)
         .then(({data}) => {
             if (!data.error) {

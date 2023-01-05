@@ -57,7 +57,7 @@ export const cleanTodolists = () => ({
     type: "todolist/cleanTodolists"
 }) as const
 
-export const setTodolistStatus = (todoId: string, status: RequestStatusType) => ({
+export const setTodolistStatus = (todoId: string, status: TodolistRequestStatusType) => ({
     type: "todolist/setTodolistStatus",
     todoId,
     status
@@ -77,7 +77,6 @@ export const fetchTodolistsTC = (): AppThunk => dispatch => {
 
 export const addTodolistTC = (title: string): AppThunk<Promise<void>> => dispatch => {
     dispatch(setAppStatus("loading"))
-
     return todolistAPI.createTodo(title)
         .then(({data}) => {
             if (data.resultCode === ResultCode.Ok) {
@@ -95,7 +94,7 @@ export const addTodolistTC = (title: string): AppThunk<Promise<void>> => dispatc
 
 export const deleteTodolistTC = (todoId: string): AppThunk => dispatch => {
     dispatch(setAppStatus("loading"))
-    dispatch(setTodolistStatus(todoId, "loading"))
+    dispatch(setTodolistStatus(todoId, "deleting"))
     todolistAPI.deleteTodo(todoId)
         .then(({data}) => {
             if (data.resultCode === ResultCode.Ok) {
@@ -148,11 +147,11 @@ export const selectTodolist = (state: RootStateType, todoId: string) => {
 
 export default todolistReducer
 
-
+export type TodolistRequestStatusType = RequestStatusType | "deleting" | "fetchingTasks"
 export type FilterType = "active" | "completed" | "all"
 export type TodolistDomainType = {
     filter: FilterType
-    entityStatus: RequestStatusType
+    entityStatus: TodolistRequestStatusType
 } & TodolistType
 type TodolistConfigType = Partial<Pick<TodolistDomainType, "title" | "filter">>
 

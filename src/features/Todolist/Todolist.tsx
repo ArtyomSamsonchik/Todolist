@@ -18,7 +18,27 @@ import {
 } from "../Task/task-reducer";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
+import MuiBackdrop from "@mui/material/Backdrop";
+
+const TodolistBackdrop: FC<{ open: boolean }> = ({open}) => {
+    return (
+        <MuiBackdrop
+            open={open}
+            sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                zIndex: 10,
+                backgroundColor: "unset"
+            }}
+        >
+            <CircularProgress
+                sx={{color: theme => theme.palette.grey[600]}}
+                size={50}
+            />
+        </MuiBackdrop>
+    )
+}
 
 type TodolistProps = {
     todoId: string
@@ -29,7 +49,10 @@ const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
     const {selectFilteredTaskIds} = useMemo(filteredTasksSelectorFactory, [])
     const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todo.filter))
     const dispatch = useAppDispatch()
+
     const todolistIsLoading = todo.entityStatus === "loading"
+    const todolistIsFullyDisabled = todo.entityStatus === "fetchingTasks"
+    || todo.entityStatus === "deleting"
 
     useEffect(() => {
         dispatch(fetchTasksTC(todoId))
@@ -59,26 +82,15 @@ const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
         return todo.filter === filter ? "contained" : "outlined"
     }
 
-    // const renderedTasks = todolistIsLoading && !taskIds.length
-    //     ? <Box
-    //         display="flex"
-    //         justifyContent="center"
-    //         alignItems="center"
-    //         my={2}
-    //     >
-    //         <CircularProgress
-    //             sx={{color: theme => theme.palette.grey[700]}}
-    //             size={50}
-    //         />
-    //     </Box>
-    //     : taskIds.map(id => <Task key={id} todoId={todoId} taskId={id}/>)
-    const renderedTasks = taskIds.map(id => <Task key={id} todoId={todoId} taskId={id}/>)
-
-    console.log(todolistIsLoading)
     return (
         <Grid item>
-            <Paper elevation={3}>
-                <List>
+            <Paper elevation={3} sx={{position: "relative"}}>
+                <TodolistBackdrop open={todolistIsFullyDisabled}/>
+                <List sx={{
+                    opacity: theme => (
+                        todolistIsFullyDisabled ? theme.palette.action.disabledOpacity : 1
+                    )
+                }}>
                     <ListItem component="div">
                         <EditableSpan
                             variant="h6"
@@ -99,16 +111,14 @@ const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
                             disabled={todolistIsLoading}
                         />
                     </ListItem>
-                    {renderedTasks}
+                    {taskIds.map(id => <Task key={id} todoId={todoId} taskId={id}/>)}
                     <ListItem component="div">
-                        <ButtonGroup
-                            sx={{
-                                width: 1,
-                                '& .MuiButton-root': {
-                                    flex: "1 1 auto"
-                                }
-                            }}
-                            disabled={todolistIsLoading}
+                        <ButtonGroup sx={{
+                            width: 1,
+                            '& .MuiButton-root': {
+                                flex: "1 1 auto"
+                            }
+                        }}
                         >
                             <Button
                                 variant={getButtonVariant("active")}
