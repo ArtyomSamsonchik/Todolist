@@ -23,7 +23,7 @@ const TodolistList = React.memo(() => {
     }, [dispatch])
 
     if (!isLoggedIn) {
-        return <Navigate to="/login"/>
+        return <Navigate to="/Todolist/login"/>
     }
 
     return (

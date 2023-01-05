@@ -32,7 +32,7 @@ const LoginPage = () => {
     }
 
     if (isLoggedIn) {
-        return <Navigate to="/" replace/>
+        return <Navigate to="/Todolist" replace/>
     }
 
     return (

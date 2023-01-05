@@ -14,7 +14,7 @@ const root = ReactDOM.createRoot(
 
 const router = createBrowserRouter([
     {
-        path: "/",
+        path: "/Todolist",
         element: <App/>,
         children: [
             {
@@ -22,16 +22,16 @@ const router = createBrowserRouter([
                 element: <TodolistList/>
             },
             {
-                path: "/login",
+                path: "/Todolist/login",
                 element: <LoginPage/>
             },
             {
-                path: "/404",
+                path: "/Todolist/404",
                 element: <h1>404 Page not found</h1>
             },
             {
-                path: "*",
-                element: <Navigate to="/404"/>
+                path: "/Todolist/*",
+                element: <Navigate to="/Todolist/404"/>
             }
         ]
     }
