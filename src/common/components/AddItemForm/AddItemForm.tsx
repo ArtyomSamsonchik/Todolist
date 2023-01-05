@@ -24,7 +24,6 @@ const propsEqualityFn = <T extends AddItemFormProps>(prevProps: T, nextProps: T)
 
 
 const AddItemForm: FC<AddItemFormProps> = React.memo((props) => {
-    console.log('addItem form')
     const {sx, addItemCallback, label, disabled} = props
     const validate = ({title}: AddItemFormValues) => {
         const errors: { title?: string } = {}
