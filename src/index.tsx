@@ -35,7 +35,11 @@ const router = createBrowserRouter([
             }
         ]
     }
-])
+],
+    {
+        basename: "/Todolist"
+    }
+    )
 
 root.render(
     <Provider store={store}>
