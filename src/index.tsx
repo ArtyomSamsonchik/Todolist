@@ -35,10 +35,12 @@ const router = createHashRouter([
             }
         ]
     }
-],)
+])
 
 root.render(
     <Provider store={store}>
         <RouterProvider router={router}/>
     </Provider>
 )
+
+console.log(process.env)

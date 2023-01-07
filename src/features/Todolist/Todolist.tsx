@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useEffect, useMemo} from 'react';
+import React, {FC, useCallback, useMemo} from 'react';
 import Grid from "@mui/material/Grid";
 import List from "@mui/material/List";
 import Paper from "@mui/material/Paper";
@@ -13,7 +13,6 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditableSpan from "../../common/components/EditableSpan";
 import {
     addTaskTC,
-    fetchTasksTC,
     filteredTasksSelectorFactory
 } from "../Task/task-reducer";
 import Button from "@mui/material/Button";
@@ -53,10 +52,6 @@ const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
     const todolistIsLoading = todo.entityStatus === "loading"
     const todolistIsFullyDisabled = todo.entityStatus === "fetchingTasks"
     || todo.entityStatus === "deleting"
-
-    useEffect(() => {
-        dispatch(fetchTasksTC(todoId))
-    }, [dispatch, todoId])
 
     const deleteTodo = () => {
         dispatch(deleteTodolistTC(todoId))

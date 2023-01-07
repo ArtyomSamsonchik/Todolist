@@ -5,6 +5,7 @@ import {AxiosError} from "axios";
 import {handleError} from "../../common/utils/handleErrors";
 import {createSelector} from "reselect";
 import {shallowEqual} from "react-redux";
+import {fetchTasksTC} from "../Task/task-reducer";
 
 
 const todolistReducer = (state: TodolistDomainType[] = [], action: TodolistActionsType): TodolistDomainType[] => {
@@ -69,6 +70,10 @@ export const fetchTodolistsTC = (): AppThunk => dispatch => {
         .then(({data}) => {
             dispatch(initTodolists(data))
             dispatch(setAppStatus("success"))
+            return data
+        })
+        .then((todos) => {
+            todos.forEach(tl => dispatch(fetchTasksTC(tl.id)))
         })
         .catch((e: Error | AxiosError) => {
             handleError(e, dispatch)
