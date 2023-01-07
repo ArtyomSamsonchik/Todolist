@@ -4,7 +4,7 @@ import './index.css';
 import App from './app/App';
 import {Provider} from "react-redux";
 import store from "./app/store";
-import {createBrowserRouter, Navigate, RouterProvider} from "react-router-dom";
+import {createHashRouter, Navigate, RouterProvider} from "react-router-dom";
 import TodolistList from "./features/Todolist/TodolistList";
 import LoginPage from "./features/Auth/LoginPage/LoginPage";
 
@@ -12,9 +12,9 @@ const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 )
 
-const router = createBrowserRouter([
+const router = createHashRouter([
     {
-        path: "/Todolist",
+        path: "/",
         element: <App/>,
         children: [
             {
