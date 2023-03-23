@@ -20,5 +20,7 @@ export type AppThunk<R = void> = ThunkAction<R, RootStateType, unknown, AnyActio
 
 export default store
 
-//@ts-ignore
-window.store = store
+if (process.env.NODE_ENV === 'development') {
+    //@ts-ignore
+    window.store = store
+}

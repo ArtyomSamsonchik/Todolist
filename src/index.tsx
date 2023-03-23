@@ -22,6 +22,10 @@ const router = createHashRouter([
                 element: <TodolistList/>
             },
             {
+                path: "todolist",
+                element: <TodolistList/>
+            },
+            {
                 path: "login",
                 element: <LoginPage/>
             },
@@ -42,5 +46,3 @@ root.render(
         <RouterProvider router={router}/>
     </Provider>
 )
-
-console.log(process.env)

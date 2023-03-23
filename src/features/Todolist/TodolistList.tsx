@@ -6,6 +6,7 @@ import {Grid} from "@mui/material";
 import AddItemForm from "../../common/components/AddItemForm/AddItemForm";
 import {selectIsLoggedIn} from "../Auth/auth-reducer";
 import {Navigate} from "react-router-dom";
+import PATH from "../../app/path";
 
 const TodolistList = React.memo(() => {
     const todoIds = useAppSelector(selectTodolistIds)
@@ -23,7 +24,7 @@ const TodolistList = React.memo(() => {
     }, [dispatch])
 
     if (!isLoggedIn) {
-        return <Navigate to="login"/>
+        return <Navigate to={`/${PATH.LOGIN}`}/>
     }
 
     return (

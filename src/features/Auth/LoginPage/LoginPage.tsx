@@ -15,6 +15,7 @@ import {validateLogin} from "../../../common/utils/validateLogin";
 import LoginFormInput from "./LoginFormInput/LoginFormInput";
 import FormLabel from "@mui/material/FormLabel";
 import Typography from "@mui/material/Typography";
+import PATH from "../../../app/path";
 
 export type FormValues = {
     email: string,
@@ -32,7 +33,7 @@ const LoginPage = () => {
     }
 
     if (isLoggedIn) {
-        return <Navigate to="/" replace/>
+        return <Navigate to={`/${PATH.TODOLIST}`} replace/>
     }
 
     return (
