@@ -3,7 +3,7 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import MuiAppBar from "@mui/material/AppBar";
 import {useAppDispatch, useAppSelector} from "../hooks/hooks";
-import {logoutTC, selectIsLoggedIn} from "../../features/Auth/auth-reducer";
+import {logoutTC, selectIsLoggedIn} from "../../features/Auth/auth-slice";
 import Button from "@mui/material/Button";
 import ProgressBar from "./ProgressBar/ProgressBar";
 

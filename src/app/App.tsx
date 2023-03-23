@@ -8,7 +8,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ErrorSnackbar from "../common/components/ErrorSnackbar/ErrorSnackbar";
 import {useAppDispatch, useAppSelector} from "../common/hooks/hooks";
 import {selectIsInit} from "./app-reducer";
-import {authMeTC} from "../features/Auth/auth-reducer";
+import {authMeTC} from "../features/Auth/auth-slice";
 
 const App = () => {
     const isInitialized = useAppSelector(selectIsInit)

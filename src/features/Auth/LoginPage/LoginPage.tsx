@@ -10,7 +10,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import {Navigate} from "react-router-dom";
 import {useAppDispatch, useAppSelector} from "../../../common/hooks/hooks";
-import {loginTC, selectIsLoggedIn} from "../auth-reducer";
+import {loginTC, selectIsLoggedIn} from "../auth-slice";
 import {validateLogin} from "../../../common/utils/validateLogin";
 import LoginFormInput from "./LoginFormInput/LoginFormInput";
 import FormLabel from "@mui/material/FormLabel";

@@ -5,34 +5,22 @@ import {cleanTodolists} from "../Todolist/todolist-reducer";
 import {cleanTasks} from "../Task/task-reducer";
 import {AxiosError} from "axios";
 import {handleError} from "../../common/utils/handleErrors";
+import {createSlice} from "@reduxjs/toolkit";
 
-type AuthStateType = {
-    isLoggedIn: boolean
-}
-
-const initialState: AuthStateType = {
+const initialState = {
     isLoggedIn: false
 }
 
-const authReducer = (state = initialState, action: ActionsType): AuthStateType => {
-    switch (action.type) {
-        case "auth/login":
-            return {...state, isLoggedIn: true}
-        case "auth/logout":
-            return {...state, isLoggedIn: false}
-        default:
-            return state
-    }
-}
+const authSlice = createSlice({
+  name: 'auth',
+  initialState,
+  reducers: {
+    login(state) { state.isLoggedIn = true },
+    logout(state) { state.isLoggedIn = false },
+  },
+})
 
-export const login = () => ({
-    type: "auth/login"
-}) as const
-
-export const logout = () => ({
-    type: "auth/logout"
-}) as const
-
+// thunks
 export const loginTC = (config: LoginConfigType): AppThunk<Promise<void>> => dispatch => {
     dispatch(setAppStatus("loading"))
     return authAPI.login(config)
@@ -85,10 +73,8 @@ export const authMeTC = (): AppThunk => dispatch => {
         })
 }
 
+// selectors
 export const selectIsLoggedIn = (state: RootStateType) => state.auth.isLoggedIn
 
-export default authReducer
-
-export type LoginAT = ReturnType<typeof login>
-export type LogoutAT = ReturnType<typeof logout>
-type ActionsType = LoginAT | LogoutAT
+export const { login, logout } = authSlice.actions
+export default authSlice.reducer

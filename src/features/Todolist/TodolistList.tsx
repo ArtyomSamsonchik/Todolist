@@ -4,7 +4,7 @@ import {addTodolistTC, fetchTodolistsTC, selectTodolistIds} from "./todolist-red
 import Todolist from "./Todolist";
 import {Grid} from "@mui/material";
 import AddItemForm from "../../common/components/AddItemForm/AddItemForm";
-import {selectIsLoggedIn} from "../Auth/auth-reducer";
+import {selectIsLoggedIn} from "../Auth/auth-slice";
 import {Navigate} from "react-router-dom";
 import PATH from "../../app/path";
 
