@@ -1,6 +1,6 @@
 import React from 'react';
 import {useAppSelector} from "../../hooks/hooks";
-import {selectAppStatus} from "../../../app/app-reducer";
+import {selectAppStatus} from "../../../app/app-slice";
 import LinearProgress from "@mui/material/LinearProgress";
 
 const ProgressBar = () => {

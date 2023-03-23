@@ -1,6 +1,6 @@
 import {ResultCode, todolistAPI, TodolistType} from "../../app/api";
 import {AppThunk, RootStateType} from "../../app/store";
-import {RequestStatusType, setAppStatus} from "../../app/app-reducer";
+import {RequestStatusType, setAppStatus} from "../../app/app-slice";
 import {AxiosError} from "axios";
 import {handleError} from "../../common/utils/handleErrors";
 import {createSelector} from "reselect";

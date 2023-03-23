@@ -2,7 +2,7 @@ import React from 'react';
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import {useAppDispatch, useAppSelector} from "../../hooks/hooks";
-import {selectAppError, setAppError} from "../../../app/app-reducer";
+import {selectAppError, setAppError} from "../../../app/app-slice";
 
 let message = ""
 

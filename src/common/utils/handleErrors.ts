@@ -1,5 +1,5 @@
 import {AppDispatch} from "../../app/store";
-import {setAppError, setAppStatus} from "../../app/app-reducer";
+import {setAppError, setAppStatus} from "../../app/app-slice";
 import axios from "axios";
 
 export const handleError = <T extends Error>(error: T, dispatch: AppDispatch) => {

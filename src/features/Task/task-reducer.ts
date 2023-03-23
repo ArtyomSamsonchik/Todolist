@@ -1,7 +1,7 @@
 import {ResultCode, taskAPI, TaskModelType, TaskStatus, TaskType} from "../../app/api";
 import {AddTodolistAT, FilterType, InitTodolistsAT, setTodolistStatus} from "../Todolist/todolist-reducer";
 import {AppThunk, RootStateType} from "../../app/store";
-import {RequestStatusType, setAppStatus} from "../../app/app-reducer";
+import {RequestStatusType, setAppStatus} from "../../app/app-slice";
 import {handleError} from "../../common/utils/handleErrors";
 import {AxiosError} from "axios";
 import {createSelector} from "reselect";

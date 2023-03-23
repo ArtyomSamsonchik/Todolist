@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import ErrorSnackbar from "../common/components/ErrorSnackbar/ErrorSnackbar";
 import {useAppDispatch, useAppSelector} from "../common/hooks/hooks";
-import {selectIsInit} from "./app-reducer";
+import {selectIsInit} from "./app-slice";
 import {authMeTC} from "../features/Auth/auth-slice";
 
 const App = () => {

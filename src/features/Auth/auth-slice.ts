@@ -1,6 +1,6 @@
 import {AppThunk, RootStateType} from "../../app/store";
 import {authAPI, LoginConfigType, ResultCode} from "../../app/api";
-import {initApp, setAppStatus} from "../../app/app-reducer";
+import {initApp, setAppStatus} from "../../app/app-slice";
 import {cleanTodolists} from "../Todolist/todolist-reducer";
 import {cleanTasks} from "../Task/task-reducer";
 import {AxiosError} from "axios";
