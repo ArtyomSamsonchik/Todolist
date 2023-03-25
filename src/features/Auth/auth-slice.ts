@@ -1,11 +1,12 @@
 import {AppThunk, RootStateType} from "../../app/store";
-import {authAPI, LoginConfigType, ResultCode} from "../../app/api";
+import {ResultCode} from "../../app/api-instance";
 import {initApp, setAppStatus} from "../../app/app-slice";
 import {cleanTodolists} from "../Todolist/todolist-slice";
 import {cleanTasks} from "../Task/task-slice";
 import {AxiosError} from "axios";
 import {handleError} from "../../utils/helpers/handleErrors";
 import {createSlice} from "@reduxjs/toolkit";
+import {authAPI, LoginData} from "./auth-api";
 
 const initialState = {
     isLoggedIn: false
@@ -21,7 +22,7 @@ const authSlice = createSlice({
 })
 
 // thunks
-export const loginTC = (config: LoginConfigType): AppThunk<Promise<void>> => dispatch => {
+export const loginTC = (config: LoginData): AppThunk<Promise<void>> => dispatch => {
     dispatch(setAppStatus("loading"))
     return authAPI.login(config)
         .then(({data}) => {

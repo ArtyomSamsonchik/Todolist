@@ -1,4 +1,4 @@
-import {ResultCode, todolistAPI, Todolist} from "../../app/api";
+import {ResultCode} from "../../app/api-instance";
 import {AppThunk, RootStateType} from "../../app/store";
 import {RequestStatus, setAppStatus} from "../../app/app-slice";
 import {AxiosError} from "axios";
@@ -7,6 +7,7 @@ import {createSelector} from "reselect";
 import {shallowEqual} from "react-redux";
 import {fetchTasksTC} from "../Task/task-slice";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {Todolist, todolistAPI} from "./todolist-api";
 
 const todolistSlice = createSlice({
     name: 'todolist',

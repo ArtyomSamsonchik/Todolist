@@ -1,11 +1,5 @@
-import {ResultCode, taskAPI, TaskModel, TaskStatus, Task} from "../../app/api";
-import {
-    addTodolist,
-    Filter,
-    initTodolists,
-    removeTodolist,
-    setTodolistStatus
-} from "../Todolist/todolist-slice";
+import {ResultCode} from "../../app/api-instance";
+import {addTodolist, Filter, initTodolists, removeTodolist, setTodolistStatus} from "../Todolist/todolist-slice";
 import {AppThunk, RootStateType} from "../../app/store";
 import {RequestStatus, setAppStatus} from "../../app/app-slice";
 import {handleError} from "../../utils/helpers/handleErrors";
@@ -14,6 +8,7 @@ import {createSelector} from "reselect";
 import {shallowEqual} from "react-redux";
 import {createSlice, PayloadAction} from "@reduxjs/toolkit";
 import {createTaskDomainEntity} from "../../utils/helpers/createTaskDomainEntity";
+import {Task, taskAPI, TaskStatus} from "./task-api";
 
 const taskSlice = createSlice({
     name: 'task',
@@ -67,7 +62,7 @@ const taskSlice = createSlice({
             state[id] = []
         })
         builder.addCase(removeTodolist, (state, action) => {
-            delete state[action.payload]
+            delete state[action.payload.todoId]
         })
     }
 })
@@ -214,4 +209,5 @@ export type TaskDomain = Task & {
     entityStatus: RequestStatus
 }
 
+export type TaskModel = Omit<Task, "id" | "todoListId" | "order" | "deadline">
 type TasksState = Record<string, TaskDomain[]>

@@ -7,8 +7,8 @@ import ListItemText from "@mui/material/ListItemText";
 import DeleteIcon from "@mui/icons-material/Delete";
 import {useAppDispatch, useAppSelector} from "../../utils/hooks/hooks";
 import {deleteTaskTC, selectTask, updateTaskTC} from "./task-slice";
-import {TaskStatus} from "../../app/api";
 import EditableSpan from "../../common/components/EditableSpan";
+import {TaskStatus} from "./task-api";
 
 type TaskProps = {
     todoId: string
