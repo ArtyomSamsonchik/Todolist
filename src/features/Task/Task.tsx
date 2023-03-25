@@ -5,8 +5,8 @@ import ListItem from "@mui/material/ListItem";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import DeleteIcon from "@mui/icons-material/Delete";
-import {useAppDispatch, useAppSelector} from "../../common/hooks/hooks";
-import {deleteTaskTC, selectTask, updateTaskTC} from "./task-reducer";
+import {useAppDispatch, useAppSelector} from "../../utils/hooks/hooks";
+import {deleteTaskTC, selectTask, updateTaskTC} from "./task-slice";
 import {TaskStatus} from "../../app/api";
 import EditableSpan from "../../common/components/EditableSpan";
 

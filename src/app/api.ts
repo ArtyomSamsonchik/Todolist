@@ -10,10 +10,10 @@ const instance = axios.create({
 
 export const todolistAPI = {
     getTodos() {
-        return instance.get<TodolistType[]>("todo-lists")
+        return instance.get<Todolist[]>("todo-lists")
     },
     createTodo(title: string) {
-        return instance.post<ApiResponse<{ item: TodolistType }>>("todo-lists", {title})
+        return instance.post<ApiResponse<{ item: Todolist }>>("todo-lists", {title})
     },
     deleteTodo(todoId: string) {
         return instance.delete<ApiResponse>(`todo-lists/${todoId}`)
@@ -26,17 +26,17 @@ export const todolistAPI = {
 export const taskAPI = {
     getTasks(todoId: string) {
         return instance.get<
-            { items: TaskType[], totalCount: number, error: string }
+            { items: Task[], totalCount: number, error: string }
         >(`todo-lists/${todoId}/tasks`)
     },
     addTask(todoId: string, title: string) {
-        return instance.post<ApiResponse<{ item: TaskType }>>(`todo-lists/${todoId}/tasks`, {title})
+        return instance.post<ApiResponse<{ item: Task }>>(`todo-lists/${todoId}/tasks`, {title})
     },
     deleteTask(todoId: string, taskId: string) {
         return instance.delete<ApiResponse>(`todo-lists/${todoId}/tasks/${taskId}`)
     },
-    updateTask(todoId: string, taskId: string, model: TaskModelType) {
-        return instance.put<ApiResponse<{ item: TaskType }>>(`todo-lists/${todoId}/tasks/${taskId}`, model)
+    updateTask(todoId: string, taskId: string, model: TaskModel) {
+        return instance.put<ApiResponse<{ item: Task }>>(`todo-lists/${todoId}/tasks/${taskId}`, model)
     }
 }
 
@@ -58,14 +58,14 @@ type ApiResponse<T = {}> = {
     data: T
 }
 
-export type TodolistType = {
+export type Todolist = {
     id: string
     addedDate: string
     order: number
     title: string
 }
 
-export type TaskType = {
+export type Task = {
     description: string
     title: string
     status: TaskStatus
@@ -78,7 +78,7 @@ export type TaskType = {
     addedDate: string
 }
 
-export type TaskModelType = Omit<TaskType, "id" | "todoListId" | "order" | "deadline">
+export type TaskModel = Omit<Task, "id" | "todoListId" | "order" | "deadline">
 
 export enum ResultCode {
     Ok,

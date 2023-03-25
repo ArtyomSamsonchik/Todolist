@@ -1,10 +1,10 @@
 import {AppThunk, RootStateType} from "../../app/store";
 import {authAPI, LoginConfigType, ResultCode} from "../../app/api";
 import {initApp, setAppStatus} from "../../app/app-slice";
-import {cleanTodolists} from "../Todolist/todolist-reducer";
-import {cleanTasks} from "../Task/task-reducer";
+import {cleanTodolists} from "../Todolist/todolist-slice";
+import {cleanTasks} from "../Task/task-slice";
 import {AxiosError} from "axios";
-import {handleError} from "../../common/utils/handleErrors";
+import {handleError} from "../../utils/helpers/handleErrors";
 import {createSlice} from "@reduxjs/toolkit";
 
 const initialState = {

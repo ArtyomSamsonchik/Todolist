@@ -1,5 +1,5 @@
 import React from 'react';
-import {useAppSelector} from "../../hooks/hooks";
+import {useAppSelector} from "../../../utils/hooks/hooks";
 import {selectAppStatus} from "../../../app/app-slice";
 import LinearProgress from "@mui/material/LinearProgress";
 

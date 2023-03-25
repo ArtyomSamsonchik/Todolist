@@ -7,14 +7,14 @@ import AddItemForm from "../../common/components/AddItemForm/AddItemForm";
 import ListItem from "@mui/material/ListItem";
 import ButtonGroup from "@mui/material/ButtonGroup";
 import IconButton from "@mui/material/IconButton";
-import {useAppDispatch, useAppSelector} from "../../common/hooks/hooks";
-import {deleteTodolistTC, FilterType, selectTodolist, updateTodolist, updateTodolistTitleTC} from "./todolist-reducer";
+import {useAppDispatch, useAppSelector} from "../../utils/hooks/hooks";
+import {deleteTodolistTC, Filter, selectTodolist, updateTodolist, updateTodolistTitleTC} from "./todolist-slice";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditableSpan from "../../common/components/EditableSpan";
 import {
     addTaskTC,
     filteredTasksSelectorFactory
-} from "../Task/task-reducer";
+} from "../Task/task-slice";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import MuiBackdrop from "@mui/material/Backdrop";
@@ -51,16 +51,19 @@ const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
 
     const todolistIsLoading = todo.entityStatus === "loading"
     const todolistIsFullyDisabled = todo.entityStatus === "fetchingTasks"
-    || todo.entityStatus === "deleting"
+        || todo.entityStatus === "deleting"
 
     const deleteTodo = () => {
         dispatch(deleteTodolistTC(todoId))
     }
 
-    const handleFilterChange = (filter: FilterType) => {
+    const handleFilterChange = (filter: Filter) => {
         return () => {
             if (todo.filter !== filter) {
-                dispatch(updateTodolist(todoId, {filter}))
+                dispatch(updateTodolist({
+                    todoId,
+                    patch: {filter}
+                }))
             }
         }
     }
@@ -73,7 +76,7 @@ const Todolist: FC<TodolistProps> = React.memo(({todoId}) => {
         return dispatch(addTaskTC(todoId, title))
     }, [dispatch, todoId])
 
-    const getButtonVariant = (filter: FilterType) => {
+    const getButtonVariant = (filter: Filter) => {
         return todo.filter === filter ? "contained" : "outlined"
     }
 
