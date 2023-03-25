@@ -1,6 +1,6 @@
 import {AppThunk, RootStateType} from "../../app/store";
 import {ResultCode} from "../../app/api-instance";
-import {initApp, setAppStatus} from "../../app/app-slice";
+import {initApp, selectIsInit, setAppStatus} from "../../app/app-slice";
 import {cleanTodolists} from "../Todolist/todolist-slice";
 import {cleanTasks} from "../Task/task-slice";
 import {AxiosError} from "axios";
@@ -13,12 +13,16 @@ const initialState = {
 }
 
 const authSlice = createSlice({
-  name: 'auth',
-  initialState,
-  reducers: {
-    login(state) { state.isLoggedIn = true },
-    logout(state) { state.isLoggedIn = false },
-  },
+    name: 'auth',
+    initialState,
+    reducers: {
+        login(state) {
+            state.isLoggedIn = true
+        },
+        logout(state) {
+            state.isLoggedIn = false
+        },
+    },
 })
 
 // thunks
@@ -58,10 +62,9 @@ export const logoutTC = (): AppThunk<Promise<void>> => dispatch => {
         })
 }
 
-export const authMeTC = (): AppThunk => dispatch => {
+export const authMeTC = (): AppThunk => (dispatch, getState) => {
     authAPI.me()
         .then(({data}) => {
-            dispatch(initApp())
             if (data.resultCode === ResultCode.Ok) {
                 dispatch(login())
             } else {
@@ -70,12 +73,19 @@ export const authMeTC = (): AppThunk => dispatch => {
             }
         })
         .catch((e: Error | AxiosError) => {
+            const isInitialized = selectIsInit(getState())
+            const notAuthorizedOnFirstLoad =
+                e.message === "You are not authorized" && !isInitialized
+
+            if (notAuthorizedOnFirstLoad) return
+
             handleError(e, dispatch)
         })
+        .finally(() => dispatch(initApp()))
 }
 
 // selectors
 export const selectIsLoggedIn = (state: RootStateType) => state.auth.isLoggedIn
 
-export const { login, logout } = authSlice.actions
+export const {login, logout} = authSlice.actions
 export default authSlice.reducer
