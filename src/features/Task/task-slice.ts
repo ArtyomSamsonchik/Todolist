@@ -4,7 +4,7 @@ import {
   Filter,
   initTodolists,
   removeTodolist,
-  setTodolistStatus,
+  setTodolistStatus
 } from '../Todolist/todolist-slice'
 import { AppThunk, RootStateType } from '../../app/store'
 import { RequestStatus, setAppStatus } from '../../app/app-slice'
@@ -33,8 +33,9 @@ const taskSlice = createSlice({
     },
     deleteTask(state, action: PayloadAction<{ todoId: string; taskId: string }>) {
       const { todoId, taskId } = action.payload
+      const index = state[todoId].findIndex(t => t.id === taskId)
 
-      state[todoId] = state[todoId].filter(t => t.id !== taskId)
+      if (index !== -1) state[todoId].splice(index, 1)
     },
     updateTask(state, action: PayloadAction<Task>) {
       const newTask = action.payload
@@ -48,13 +49,13 @@ const taskSlice = createSlice({
       action: PayloadAction<{ todoId: string; taskId: string; status: RequestStatus }>
     ) {
       const { todoId, taskId, status } = action.payload
-      const task = state[todoId].find(t => t.id === taskId)
+      const index = state[todoId].findIndex(t => t.id === taskId)
 
-      if (task) task.entityStatus = status
+      if (index !== -1) state[todoId][index].entityStatus = status
     },
     cleanTasks(state) {
       state = {}
-    },
+    }
   },
   extraReducers: builder => {
     builder.addCase(initTodolists, (state, action) => {
@@ -63,115 +64,113 @@ const taskSlice = createSlice({
       })
     })
     builder.addCase(addTodolist, (state, action) => {
-      const { id } = action.payload
-
-      state[id] = []
+      state[action.payload.id] = []
     })
     builder.addCase(removeTodolist, (state, action) => {
       delete state[action.payload.todoId]
     })
-  },
+  }
 })
 
 // thunks
 export const fetchTasksTC =
   (todoId: string): AppThunk =>
-  dispatch => {
-    dispatch(setAppStatus('loading'))
-    dispatch(setTodolistStatus({ todoId, status: 'fetchingTasks' }))
-    taskAPI
-      .getTasks(todoId)
-      .then(({ data }) => {
-        if (!data.error) {
-          dispatch(initTasks({ todoId, tasks: data.items }))
-          dispatch(setAppStatus('success'))
-          dispatch(setTodolistStatus({ todoId, status: 'success' }))
-        } else {
-          const message = data.error || 'Something went wrong!'
-          throw new Error(message)
-        }
-      })
-      .catch(e => {
-        handleError(e, dispatch)
-        dispatch(setTodolistStatus({ todoId, status: 'failure' }))
-      })
-  }
+    dispatch => {
+      dispatch(setAppStatus('loading'))
+      dispatch(setTodolistStatus({ todoId, status: 'fetchingTasks' }))
+      taskAPI
+        .getTasks(todoId)
+        .then(({ data }) => {
+          if (!data.error) {
+            dispatch(initTasks({ todoId, tasks: data.items }))
+            dispatch(setAppStatus('success'))
+            dispatch(setTodolistStatus({ todoId, status: 'success' }))
+          } else {
+            const message = data.error || 'Something went wrong!'
+            throw new Error(message)
+          }
+        })
+        .catch(e => {
+          handleError(e, dispatch)
+          dispatch(setTodolistStatus({ todoId, status: 'failure' }))
+        })
+    }
 
 export const addTaskTC =
   (todoId: string, title: string): AppThunk<Promise<void>> =>
-  dispatch => {
-    dispatch(setAppStatus('loading'))
-    return taskAPI
-      .addTask(todoId, title)
-      .then(({ data }) => {
-        if (data.resultCode === ResultCode.Ok) {
-          dispatch(addTask(data.data.item))
-          dispatch(setAppStatus('success'))
-        } else {
-          const message = data.messages[0] || 'Something went wrong!'
-          throw new Error(message)
-        }
-      })
-      .catch(e => {
-        handleError(e, dispatch)
-      })
-  }
+    dispatch => {
+      dispatch(setAppStatus('loading'))
+      return taskAPI
+        .addTask(todoId, title)
+        .then(({ data }) => {
+          if (data.resultCode === ResultCode.Ok) {
+            dispatch(addTask(data.data.item))
+            dispatch(setAppStatus('success'))
+          } else {
+            const message = data.messages[0] || 'Something went wrong!'
+            throw new Error(message)
+          }
+        })
+        .catch(e => {
+          handleError(e, dispatch)
+        })
+    }
 
 export const deleteTaskTC =
   (todoId: string, taskId: string): AppThunk =>
-  dispatch => {
-    dispatch(setAppStatus('loading'))
-    dispatch(setTaskStatus({ todoId, taskId, status: 'loading' }))
-    taskAPI
-      .deleteTask(todoId, taskId)
-      .then(({ data }) => {
-        if (data.resultCode === ResultCode.Ok) {
-          dispatch(deleteTask({ todoId, taskId }))
-          dispatch(setAppStatus('success'))
-        } else {
-          const message = data.messages[0] || 'Something went wrong!'
-          throw new Error(message)
-        }
-      })
-      .catch((e: Error | AxiosError) => {
-        handleError(e, dispatch)
-        dispatch(setTaskStatus({ todoId, taskId, status: 'failure' }))
-      })
-  }
+    dispatch => {
+      dispatch(setAppStatus('loading'))
+      dispatch(setTaskStatus({ todoId, taskId, status: 'loading' }))
+      taskAPI
+        .deleteTask(todoId, taskId)
+        .then(({ data }) => {
+          if (data.resultCode === ResultCode.Ok) {
+            dispatch(deleteTask({ todoId, taskId }))
+            dispatch(setAppStatus('success'))
+          } else {
+            const message = data.messages[0] || 'Something went wrong!'
+            throw new Error(message)
+          }
+        })
+        .catch((e: Error | AxiosError) => {
+          handleError(e, dispatch)
+          dispatch(setTaskStatus({ todoId, taskId, status: 'failure' }))
+        })
+    }
 
 export const updateTaskTC =
   (todoId: string, taskId: string, patch: Partial<TaskModel>): AppThunk =>
-  (dispatch, getState) => {
-    const task = selectTask(getState(), todoId, taskId)
-    const model: TaskModel = {
-      description: task.description,
-      title: task.title,
-      status: task.status,
-      priority: task.priority,
-      startDate: task.startDate,
-      addedDate: task.addedDate,
-      ...patch,
-    }
+    (dispatch, getState) => {
+      const task = selectTask(getState(), todoId, taskId)
+      const model: TaskModel = {
+        description: task.description,
+        title: task.title,
+        status: task.status,
+        priority: task.priority,
+        startDate: task.startDate,
+        addedDate: task.addedDate,
+        ...patch
+      }
 
-    dispatch(setAppStatus('loading'))
-    dispatch(setTaskStatus({ todoId, taskId, status: 'loading' }))
-    taskAPI
-      .updateTask(todoId, taskId, model)
-      .then(({ data }) => {
-        if (data.resultCode === ResultCode.Ok) {
-          dispatch(updateTask(data.data.item))
-          dispatch(setAppStatus('success'))
-          dispatch(setTaskStatus({ todoId, taskId, status: 'success' }))
-        } else {
-          const message = data.messages[0] || 'Something went wrong!'
-          throw new Error(message)
-        }
-      })
-      .catch((e: Error | AxiosError) => {
-        handleError(e, dispatch)
-        dispatch(setTaskStatus({ todoId, taskId, status: 'failure' }))
-      })
-  }
+      dispatch(setAppStatus('loading'))
+      dispatch(setTaskStatus({ todoId, taskId, status: 'loading' }))
+      taskAPI
+        .updateTask(todoId, taskId, model)
+        .then(({ data }) => {
+          if (data.resultCode === ResultCode.Ok) {
+            dispatch(updateTask(data.data.item))
+            dispatch(setAppStatus('success'))
+            dispatch(setTaskStatus({ todoId, taskId, status: 'success' }))
+          } else {
+            const message = data.messages[0] || 'Something went wrong!'
+            throw new Error(message)
+          }
+        })
+        .catch((e: Error | AxiosError) => {
+          handleError(e, dispatch)
+          dispatch(setTaskStatus({ todoId, taskId, status: 'failure' }))
+        })
+    }
 
 // selectors
 export const selectTasks = (state: RootStateType, todoId: string) => state.tasks[todoId]
@@ -196,8 +195,8 @@ export const filteredTasksSelectorFactory = () => {
 
   const selectFilteredTaskIds = createSelector(selectFilteredTasks, tasks => tasks.map(t => t.id), {
     memoizeOptions: {
-      resultEqualityCheck: shallowEqual,
-    },
+      resultEqualityCheck: shallowEqual
+    }
   })
 
   return { selectFilteredTasks, selectFilteredTaskIds }
