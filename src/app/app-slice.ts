@@ -1,26 +1,26 @@
-import {RootStateType} from "./store";
-import {createSlice, PayloadAction} from "@reduxjs/toolkit";
+import { RootStateType } from './store'
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 const initialState = {
-    status: "idle" as RequestStatus,
-    error: null as string | null,
-    isInitialized: false
+  status: 'idle' as RequestStatus,
+  error: null as string | null,
+  isInitialized: false,
 }
 
 const appSlice = createSlice({
-    name: 'app',
-    initialState,
-    reducers: {
-        initApp(state) {
-            state.isInitialized = true
-        },
-        setAppStatus(state, action: PayloadAction<RequestStatus>) {
-            state.status = action.payload
-        },
-        setAppError(state, action: PayloadAction<string | null>) {
-            state.error = action.payload
-        },
-    }
+  name: 'app',
+  initialState,
+  reducers: {
+    initApp(state) {
+      state.isInitialized = true
+    },
+    setAppStatus(state, action: PayloadAction<RequestStatus>) {
+      state.status = action.payload
+    },
+    setAppError(state, action: PayloadAction<string | null>) {
+      state.error = action.payload
+    },
+  },
 })
 
 // selectors
@@ -31,4 +31,4 @@ export const selectIsInit = (state: RootStateType) => state.app.isInitialized
 export const { initApp, setAppStatus, setAppError } = appSlice.actions
 export default appSlice.reducer
 
-export type RequestStatus = "idle" | "loading" | "success" | "failure"
+export type RequestStatus = 'idle' | 'loading' | 'success' | 'failure'
