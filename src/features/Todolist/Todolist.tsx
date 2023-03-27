@@ -19,7 +19,7 @@ import {
   updateTodolistFilter,
   updateTodolistTitle,
 } from './todolist-slice'
-import { addTaskTC, filteredTasksSelectorFactory } from '../Task/task-slice'
+import { addTask, filteredTasksSelectorFactory } from '../Task/task-slice'
 
 import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
 import EditableSpan from '../../common/components/EditableSpan'
@@ -54,7 +54,7 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
 
   const dispatch = useAppDispatch()
 
-  const todolistIsLoading = todolistStatus !== 'idle'
+  const todolistIsLoading = todolistStatus === 'loading'
 
   const handleDeleteTodolist = async () => {
     setTodolistStatus('loading')
@@ -79,7 +79,7 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
 
   const handleAddTaskClick = useCallback(
     (title: string) => {
-      return dispatch(addTaskTC(todoId, title))
+      return dispatch(addTask({ todoId, title }))
     },
     [dispatch, todoId]
   )

@@ -1,6 +1,6 @@
 import { AppThunk, RootState } from '../../app/store'
 import { ResultCode } from '../../app/api-instance'
-import { initApp, selectIsInit, setAppStatus } from '../../app/app-slice'
+import { initApp, selectIsInit } from '../../app/app-slice'
 import { cleanTodolists } from '../Todolist/todolist-slice'
 import { cleanTasks } from '../Task/task-slice'
 import { AxiosError } from 'axios'
@@ -29,13 +29,13 @@ const authSlice = createSlice({
 export const loginTC =
   (config: LoginData): AppThunk<Promise<void>> =>
   dispatch => {
-    dispatch(setAppStatus('pending'))
+    // dispatch(setAppStatus('pending'))
     return authAPI
       .login(config)
       .then(({ data }) => {
         if (data.resultCode === ResultCode.Ok) {
           dispatch(login())
-          dispatch(setAppStatus('success'))
+          // dispatch(setAppStatus('success'))
         } else {
           const message = data.messages[0] || 'Something went wrong!'
           throw new Error(message)
@@ -47,7 +47,7 @@ export const loginTC =
   }
 
 export const logoutTC = (): AppThunk<Promise<void>> => dispatch => {
-  dispatch(setAppStatus('pending'))
+  // dispatch(setAppStatus('pending'))
   return authAPI
     .logout()
     .then(({ data }) => {
@@ -55,7 +55,7 @@ export const logoutTC = (): AppThunk<Promise<void>> => dispatch => {
         dispatch(logout())
         dispatch(cleanTodolists())
         dispatch(cleanTasks())
-        dispatch(setAppStatus('success'))
+        // dispatch(setAppStatus('success'))
       } else {
         const message = data.messages[0] || 'Something went wrong!'
         throw new Error(message)

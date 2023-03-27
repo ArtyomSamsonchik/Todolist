@@ -1,30 +1,25 @@
-import { AppThunk } from '../../app/store'
-import { setAppStatus } from '../../app/app-slice'
-import { Task, taskAPI } from './task-api'
-import { handleError } from '../../utils/helpers/handleErrors'
-import { createAction } from '@reduxjs/toolkit'
+import { basicErrorMessage } from '../../app/app-slice'
+import { taskAPI } from './task-api'
+import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
+import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 
-export const initTasks = createAction<{ todoId: string; tasks: Task[] }>('tasks/initTasks')
+// Put this thunk from tasks-slice into a separate file to prevent circular dependencies,
+// since todolist-slice also uses this thunk
+export const fetchTasks = createAppAsyncThunk(
+  'tasks/fetchTasks',
+  async (todoId: string, { rejectWithValue }) => {
+    try {
+      const { data } = await taskAPI.getTasks(todoId)
 
-export const fetchTasksTC =
-  (todoId: string): AppThunk =>
-  dispatch => {
-    dispatch(setAppStatus('pending'))
-    // dispatch(setTodolistStatus({ todoId, status: 'fetchingTasks' }))
-    taskAPI
-      .getTasks(todoId)
-      .then(({ data }) => {
-        if (!data.error) {
-          dispatch(initTasks({ todoId, tasks: data.items }))
-          dispatch(setAppStatus('success'))
-          // dispatch(setTodolistStatus({ todoId, status: 'success' }))
-        } else {
-          const message = data.error || 'Something went wrong!'
-          throw new Error(message)
-        }
-      })
-      .catch(e => {
-        handleError(e, dispatch)
-        // dispatch(setTodolistStatus({ todoId, status: 'failure' }))
-      })
+      if (!data.error) {
+        return { todoId, tasks: data.items }
+      } else {
+        return rejectWithValue(data.error || basicErrorMessage)
+      }
+    } catch (e) {
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(message)
+    }
   }
+)

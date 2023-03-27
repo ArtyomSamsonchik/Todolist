@@ -5,11 +5,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Todolist, todolistAPI } from './todolist-api'
 import { createTodolistDomainEntity } from '../../utils/helpers/createTodolistDomainEntity'
 import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
-import { fetchTasksTC } from '../Task/task-shared-actions'
+import { fetchTasks } from '../Task/task-shared-actions'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { ResultCode } from '../../app/api-instance'
-
-const basicErrorMessage = 'Something went wrong! Check your Internet connection'
+import { basicErrorMessage } from '../../app/app-slice'
 
 // thunks
 export const fetchTodolists = createAppAsyncThunk(
@@ -18,7 +17,7 @@ export const fetchTodolists = createAppAsyncThunk(
     try {
       const { data: todolists } = await todolistAPI.getTodos()
 
-      todolists.forEach(tl => dispatch(fetchTasksTC(tl.id)))
+      todolists.forEach(tl => dispatch(fetchTasks(tl.id)))
 
       return todolists
     } catch (e) {
@@ -141,8 +140,10 @@ const todolistSlice = createSlice({
       const { todoId } = action.payload
       const index = state.entities.findIndex(tl => tl.id === todoId)
 
-      if (index !== -1) state.entities.splice(index, 1)
-      state.status = 'success'
+      if (index !== -1) {
+        state.entities.splice(index, 1)
+        state.status = 'success'
+      }
     })
     builder.addCase(deleteTodolist.rejected, (state, action) => {
       state.status = 'failure'

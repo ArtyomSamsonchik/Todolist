@@ -23,14 +23,15 @@ const propsEqualityFn = <T extends AddItemFormProps>(prevProps: T, nextProps: T)
 
 const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
   const { sx, addItemCallback, label, disabled } = props
+
   const validate = ({ title }: AddItemFormValues) => {
     const errors: { title?: string } = {}
-    if (!title) errors.title = 'Title should not be empty'
+    if (!title.trim()) errors.title = 'Title should not be empty'
     return errors
   }
 
   const onSubmit: FormikConfig<AddItemFormValues>['onSubmit'] = async (
-    { title }: AddItemFormValues,
+    { title },
     { resetForm }
   ) => {
     await addItemCallback(title)
@@ -45,7 +46,7 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
       validateOnBlur={false}
       onSubmit={onSubmit}
     >
-      {({ isSubmitting, handleSubmit }) => {
+      {({ isSubmitting, isValid, handleSubmit }) => {
         return (
           <Box
             component="form"
@@ -55,7 +56,11 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
             onSubmit={handleSubmit}
           >
             <AddItemInput sx={sx} label={label} disabled={isSubmitting || disabled} />
-            <IconButton type="submit" disabled={isSubmitting || disabled} color="primary">
+            <IconButton
+              type="submit"
+              disabled={isSubmitting || !isValid || disabled}
+              color="primary"
+            >
               <AddBoxIcon />
             </IconButton>
           </Box>
@@ -66,3 +71,6 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
 }, propsEqualityFn)
 
 export default AddItemForm
+
+// TODO: remove complex shallowEqual logic. Use useMemo on parent component instead
+// TODO: refactor AddItemInput to use useForm instead of useFormikContext
