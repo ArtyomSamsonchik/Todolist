@@ -1,4 +1,4 @@
-import { RootStateType } from './store'
+import { RequestStatus, RootState } from './store'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 const initialState = {
@@ -24,11 +24,9 @@ const appSlice = createSlice({
 })
 
 // selectors
-export const selectAppStatus = (state: RootStateType) => state.app.status
-export const selectAppError = (state: RootStateType) => state.app.error
-export const selectIsInit = (state: RootStateType) => state.app.isInitialized
+export const selectAppStatus = (state: RootState) => state.app.status
+export const selectAppError = (state: RootState) => state.app.error
+export const selectIsInit = (state: RootState) => state.app.isInitialized
 
 export const { initApp, setAppStatus, setAppError } = appSlice.actions
 export default appSlice.reducer
-
-export type RequestStatus = 'idle' | 'loading' | 'success' | 'failure'

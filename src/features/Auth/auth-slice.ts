@@ -1,4 +1,4 @@
-import { AppThunk, RootStateType } from '../../app/store'
+import { AppThunk, RootState } from '../../app/store'
 import { ResultCode } from '../../app/api-instance'
 import { initApp, selectIsInit, setAppStatus } from '../../app/app-slice'
 import { cleanTodolists } from '../Todolist/todolist-slice'
@@ -29,7 +29,7 @@ const authSlice = createSlice({
 export const loginTC =
   (config: LoginData): AppThunk<Promise<void>> =>
   dispatch => {
-    dispatch(setAppStatus('loading'))
+    dispatch(setAppStatus('pending'))
     return authAPI
       .login(config)
       .then(({ data }) => {
@@ -47,7 +47,7 @@ export const loginTC =
   }
 
 export const logoutTC = (): AppThunk<Promise<void>> => dispatch => {
-  dispatch(setAppStatus('loading'))
+  dispatch(setAppStatus('pending'))
   return authAPI
     .logout()
     .then(({ data }) => {
@@ -89,7 +89,7 @@ export const authMeTC = (): AppThunk => (dispatch, getState) => {
 }
 
 // selectors
-export const selectIsLoggedIn = (state: RootStateType) => state.auth.isLoggedIn
+export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn
 
 export const { login, logout } = authSlice.actions
 export default authSlice.reducer

@@ -15,11 +15,18 @@ const store = configureStore({
   },
 })
 
-export type RootStateType = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-export type AppThunk<R = void> = ThunkAction<R, RootStateType, undefined, AnyAction>
-
 export default store
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+export type AppThunk<R = void> = ThunkAction<R, RootState, undefined, AnyAction>
+
+export type RequestStatus = 'idle' | 'pending' | 'success' | 'failure'
+export type State<T> = {
+  status: RequestStatus
+  error: string | null | undefined
+  entities: T
+}
 
 if (process.env.NODE_ENV === 'development') {
   //@ts-ignore

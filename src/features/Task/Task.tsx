@@ -38,7 +38,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
   return (
     <ListItem
       secondaryAction={
-        <IconButton disabled={task.entityStatus === 'loading'} onClick={handleDeleteTaskClick}>
+        <IconButton disabled={task.entityStatus === 'pending'} onClick={handleDeleteTaskClick}>
           <DeleteIcon />
         </IconButton>
       }
@@ -46,14 +46,14 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
       <ListItemIcon>
         <Checkbox
           checked={task.status === TaskStatus.Completed}
-          disabled={task.entityStatus === 'loading'}
+          disabled={task.entityStatus === 'pending'}
           onChange={changeTaskStatus}
         />
       </ListItemIcon>
       <ListItemText
         disableTypography
         primary={
-          <EditableSpan disabled={task.entityStatus === 'loading'} changeTitle={changeTaskTitle}>
+          <EditableSpan disabled={task.entityStatus === 'pending'} changeTitle={changeTaskTitle}>
             {task.title}
           </EditableSpan>
         }
