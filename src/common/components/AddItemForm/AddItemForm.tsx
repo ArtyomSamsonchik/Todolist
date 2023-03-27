@@ -2,7 +2,7 @@ import React, { FC } from 'react'
 import { Box, IconButton, SxProps, Theme } from '@mui/material'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import { shallowEqual } from 'react-redux'
-import { Formik, FormikHelpers } from 'formik'
+import { Formik, FormikConfig } from 'formik'
 import AddItemInput from './AddIteimInput'
 
 export type AddItemFormValues = { title: string }
@@ -29,16 +29,17 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
     return errors
   }
 
-  const onSubmit = ({ title }: AddItemFormValues, actions: FormikHelpers<AddItemFormValues>) => {
-    return actions
-      .validateForm({ title })
-      .then(() => addItemCallback(title))
-      .then(() => actions.resetForm())
+  const onSubmit: FormikConfig<AddItemFormValues>['onSubmit'] = async (
+    { title }: AddItemFormValues,
+    { resetForm }
+  ) => {
+    await addItemCallback(title)
+    resetForm()
   }
 
   return (
     <Formik
-      initialValues={{ title: '' }}
+      initialValues={{ title: '' } as AddItemFormValues}
       validate={validate}
       validateOnChange={false}
       validateOnBlur={false}
@@ -53,7 +54,7 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
             alignItems="center"
             onSubmit={handleSubmit}
           >
-            <AddItemInput sx={sx} label={label} disabled={disabled} />
+            <AddItemInput sx={sx} label={label} disabled={isSubmitting || disabled} />
             <IconButton type="submit" disabled={isSubmitting || disabled} color="primary">
               <AddBoxIcon />
             </IconButton>

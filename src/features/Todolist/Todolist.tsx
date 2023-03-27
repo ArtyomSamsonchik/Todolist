@@ -1,26 +1,30 @@
-import React, { FC, useCallback, useMemo } from 'react'
+import React, { FC, useCallback, useMemo, useState } from 'react'
+
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import Paper from '@mui/material/Paper'
 import Task from '../Task/Task'
-import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
 import ListItem from '@mui/material/ListItem'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
-import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
-import {
-  deleteTodolistTC,
-  Filter,
-  selectTodolist,
-  updateTodolist,
-  updateTodolistTitleTC,
-} from './todolist-slice'
 import DeleteIcon from '@mui/icons-material/Delete'
-import EditableSpan from '../../common/components/EditableSpan'
-import { addTaskTC, filteredTasksSelectorFactory } from '../Task/task-slice'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import MuiBackdrop from '@mui/material/Backdrop'
+
+import {
+  deleteTodolist,
+  Filter,
+  selectTodolist,
+  updateTodolistFilter,
+  updateTodolistTitle,
+} from './todolist-slice'
+import { addTaskTC, filteredTasksSelectorFactory } from '../Task/task-slice'
+
+import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
+import EditableSpan from '../../common/components/EditableSpan'
+
+import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
 
 const TodolistBackdrop: FC<{ open: boolean }> = ({ open }) => {
   return (
@@ -39,40 +43,36 @@ const TodolistBackdrop: FC<{ open: boolean }> = ({ open }) => {
   )
 }
 
-type TodolistProps = {
-  todoId: string
-}
+type TodolistProps = { todoId: string }
 
 const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
-  const todo = useAppSelector(state => selectTodolist(state, todoId))
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
-  const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todo.filter))
+  const todolist = useAppSelector(state => selectTodolist(state, todoId))
+  const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
+
+  const [todolistStatus, setTodolistStatus] = useState<'loading' | 'idle'>('idle')
+
   const dispatch = useAppDispatch()
 
-  const todolistIsLoading = todo.entityStatus === 'loading'
-  const todolistIsFullyDisabled =
-    todo.entityStatus === 'fetchingTasks' || todo.entityStatus === 'deleting'
+  const todolistIsLoading = todolistStatus !== 'idle'
 
-  const deleteTodo = () => {
-    dispatch(deleteTodolistTC(todoId))
+  const handleDeleteTodolist = async () => {
+    setTodolistStatus('loading')
+    await dispatch(deleteTodolist(todoId))
+    setTodolistStatus('idle')
   }
 
-  const handleFilterChange = (filter: Filter) => {
-    return () => {
-      if (todo.filter !== filter) {
-        dispatch(
-          updateTodolist({
-            todoId,
-            patch: { filter },
-          })
-        )
-      }
-    }
+  const handleFilterChange = (filter: Filter) => () => {
+    if (todolist.filter === filter) return
+
+    dispatch(updateTodolistFilter({ todoId, filter }))
   }
 
   const changeTodolistTitle = useCallback(
-    (title: string) => {
-      dispatch(updateTodolistTitleTC(todoId, title))
+    async (title: string) => {
+      setTodolistStatus('loading')
+      await dispatch(updateTodolistTitle({ todoId, title }))
+      setTodolistStatus('idle')
     },
     [dispatch, todoId]
   )
@@ -85,16 +85,16 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
   )
 
   const getButtonVariant = (filter: Filter) => {
-    return todo.filter === filter ? 'contained' : 'outlined'
+    return todolist.filter === filter ? 'contained' : 'outlined'
   }
 
   return (
     <Grid item>
       <Paper elevation={3} sx={{ position: 'relative' }}>
-        <TodolistBackdrop open={todolistIsFullyDisabled} />
+        <TodolistBackdrop open={todolistIsLoading} />
         <List
           sx={{
-            opacity: theme => (todolistIsFullyDisabled ? theme.palette.action.disabledOpacity : 1),
+            opacity: theme => (todolistIsLoading ? theme.palette.action.disabledOpacity : 1),
           }}
         >
           <ListItem component="div">
@@ -103,9 +103,9 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
               disabled={todolistIsLoading}
               changeTitle={changeTodolistTitle}
             >
-              {todo.title}
+              {todolist.title}
             </EditableSpan>
-            <IconButton onClick={deleteTodo} disabled={todolistIsLoading}>
+            <IconButton onClick={handleDeleteTodolist} disabled={todolistIsLoading}>
               <DeleteIcon />
             </IconButton>
           </ListItem>
@@ -114,7 +114,6 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
               sx={{ width: 'auto' }}
               label="Add todo item"
               addItemCallback={handleAddTaskClick}
-              disabled={todolistIsLoading}
             />
           </ListItem>
           {taskIds.map(id => (

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
-import { addTodolistTC, fetchTodolistsTC, selectTodolistIds } from './todolist-slice'
+import { addTodolist, fetchTodolists, selectTodolistIds } from './todolist-slice'
 import Todolist from './Todolist'
 import { Grid } from '@mui/material'
 import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
@@ -15,13 +15,13 @@ const TodolistList = React.memo(() => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      dispatch(fetchTodolistsTC())
+      dispatch(fetchTodolists())
     }
   }, [dispatch, isLoggedIn])
 
-  const addTodolist = useCallback(
+  const addTodolistCB = useCallback(
     async (title: string) => {
-      return dispatch(addTodolistTC(title))
+      await dispatch(addTodolist(title))
     },
     [dispatch]
   )
@@ -34,7 +34,7 @@ const TodolistList = React.memo(() => {
     <>
       <Grid container spacing={3} justifyContent="center">
         <Grid item xs={12}>
-          <AddItemForm label="Add todolist" addItemCallback={addTodolist} />
+          <AddItemForm label="Add todolist" addItemCallback={addTodolistCB} />
         </Grid>
         {todoIds.map(id => (
           <Todolist key={id} todoId={id} />
