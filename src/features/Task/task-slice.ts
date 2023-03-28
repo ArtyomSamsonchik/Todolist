@@ -19,15 +19,11 @@ export const addTask = createAppAsyncThunk(
       const { todoId, title } = arg
       const { data } = await taskAPI.addTask(todoId, title)
 
-      if (data.resultCode === ResultCode.Ok) {
-        return { todoId, task: data.data.item }
-      } else {
-        return rejectWithValue(data.messages[0] || basicErrorMessage)
-      }
-    } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      if (data.resultCode === ResultCode.Ok) return { todoId, task: data.data.item }
 
-      return rejectWithValue(message)
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
+    } catch (e) {
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )
@@ -39,15 +35,11 @@ export const deleteTask = createAppAsyncThunk(
       const { todoId, taskId } = arg
       const { data } = await taskAPI.deleteTask(todoId, taskId)
 
-      if (data.resultCode === ResultCode.Ok) {
-        return { todoId, taskId }
-      } else {
-        return rejectWithValue(data.messages[0] || basicErrorMessage)
-      }
-    } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      if (data.resultCode === ResultCode.Ok) return { todoId, taskId }
 
-      return rejectWithValue(message)
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
+    } catch (e) {
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )
@@ -73,15 +65,11 @@ export const updateTask = createAppAsyncThunk(
 
       const { data } = await taskAPI.updateTask(todoId, taskId, model)
 
-      if (data.resultCode === ResultCode.Ok) {
-        return data.data.item
-      } else {
-        return rejectWithValue(data.messages[0] || basicErrorMessage)
-      }
-    } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      if (data.resultCode === ResultCode.Ok) return data.data.item
 
-      return rejectWithValue(message)
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
+    } catch (e) {
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )

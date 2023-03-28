@@ -22,9 +22,7 @@ export const fetchTodolists = createAppAsyncThunk(
 
       return todolists
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
-
-      return rejectWithValue(message)
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )
@@ -40,9 +38,7 @@ export const addTodolist = createAppAsyncThunk(
         return rejectWithValue(data.messages[0] || basicErrorMessage)
       }
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
-
-      return rejectWithValue(message)
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )
@@ -58,9 +54,7 @@ export const deleteTodolist = createAppAsyncThunk(
         return rejectWithValue(data.messages[0] || basicErrorMessage)
       }
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
-
-      return rejectWithValue(message)
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )
@@ -78,9 +72,7 @@ export const updateTodolistTitle = createAppAsyncThunk(
         return rejectWithValue(data.messages[0] || basicErrorMessage)
       }
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
-
-      return rejectWithValue(message)
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )

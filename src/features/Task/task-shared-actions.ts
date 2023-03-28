@@ -11,15 +11,11 @@ export const fetchTasks = createAppAsyncThunk(
     try {
       const { data } = await taskAPI.getTasks(todoId)
 
-      if (!data.error) {
-        return { todoId, tasks: data.items }
-      } else {
-        return rejectWithValue(data.error || basicErrorMessage)
-      }
-    } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      if (!data.error) return { todoId, tasks: data.items }
 
-      return rejectWithValue(message)
+      return rejectWithValue(data.error || basicErrorMessage)
+    } catch (e) {
+      return rejectWithValue(getThunkErrorMessage(e as Error))
     }
   }
 )
