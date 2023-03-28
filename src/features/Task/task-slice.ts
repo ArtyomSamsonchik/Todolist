@@ -1,6 +1,5 @@
 import { ResultCode } from '../../app/api-instance'
 import { RootState, State } from '../../app/store'
-import { basicErrorMessage } from '../../app/app-slice'
 import { createSlice } from '@reduxjs/toolkit'
 import { Task, taskAPI, TaskStatus } from './task-api'
 import { fetchTasks } from './task-shared-actions'
@@ -9,6 +8,8 @@ import { createSelector } from 'reselect'
 import { shallowEqual } from 'react-redux'
 import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
+import { basicErrorMessage } from '../../app/basic-error-message'
+import { logout } from '../Auth/auth-slice'
 
 // thunks
 export const addTask = createAppAsyncThunk(
@@ -94,9 +95,6 @@ const taskSlice = createSlice({
     error: null,
   } as State<TasksState>,
   reducers: {
-    cleanTasks(state) {
-      state.entities = {}
-    },
     resetTasksError(state) {
       state.error = null
     },
@@ -164,7 +162,7 @@ const taskSlice = createSlice({
       state.status = 'failure'
     })
 
-    // reducers for actions with related todolist
+    // shared actions
     builder.addCase(fetchTodolists.fulfilled, (state, action) => {
       action.payload.forEach(tl => {
         state.entities[tl.id] = []
@@ -175,6 +173,9 @@ const taskSlice = createSlice({
     })
     builder.addCase(deleteTodolist.fulfilled, (state, action) => {
       delete state.entities[action.payload.todoId]
+    })
+    builder.addCase(logout.fulfilled, state => {
+      state.entities = {}
     })
   },
 })
@@ -200,14 +201,11 @@ export const filteredTasksSelectorFactory = () => {
     }
   )
 
-  const selectFilteredTaskIds = createSelector(
-    selectFilteredTasks,
-    tasks => tasks.map(t => t.id),
-    {
-      memoizeOptions: {
-        resultEqualityCheck: shallowEqual,
-      },
-    })
+  const selectFilteredTaskIds = createSelector(selectFilteredTasks, tasks => tasks.map(t => t.id), {
+    memoizeOptions: {
+      resultEqualityCheck: shallowEqual,
+    },
+  })
 
   return { selectFilteredTasks, selectFilteredTaskIds }
 }
@@ -217,7 +215,7 @@ export const selectTask = (state: RootState, todoId: string, taskId: string) => 
 export const selectTasksStatus = (state: RootState) => state.tasks.status
 export const selectTasksError = (state: RootState) => state.tasks.error
 
-export const { cleanTasks, resetTasksError } = taskSlice.actions
+export const { resetTasksError } = taskSlice.actions
 
 export default taskSlice.reducer
 

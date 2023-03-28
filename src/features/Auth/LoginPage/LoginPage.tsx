@@ -10,7 +10,7 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { Navigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../utils/hooks/hooks'
-import { loginTC, selectIsLoggedIn } from '../auth-slice'
+import { login, selectIsLoggedIn } from '../auth-slice'
 import { validateLogin } from '../../../utils/helpers/validateLogin'
 import LoginFormInput from './LoginFormInput/LoginFormInput'
 import FormLabel from '@mui/material/FormLabel'
@@ -46,7 +46,7 @@ const LoginPage = () => {
         } as FormValues
       }
       validate={validateLogin}
-      onSubmit={values => dispatch(loginTC(values))}
+      onSubmit={values => dispatch(login(values))}
     >
       {formik => {
         return (

@@ -1,6 +1,4 @@
-import { AnyAction } from 'redux'
 import todolistSlice from '../features/Todolist/todolist-slice'
-import { ThunkAction } from 'redux-thunk'
 import taskSlice from '../features/Task/task-slice'
 import appSlice from './app-slice'
 import authSlice from '../features/Auth/auth-slice'
@@ -19,10 +17,9 @@ export default store
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
-export type AppThunk<R = void> = ThunkAction<R, RootState, undefined, AnyAction>
 
 export type RequestStatus = 'idle' | 'pending' | 'success' | 'failure'
-export type State<T> = {
+export type State<T = void> = {
   status: RequestStatus
   error: string | null | undefined
   entities: T

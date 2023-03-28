@@ -8,7 +8,8 @@ import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
 import { fetchTasks } from '../Task/task-shared-actions'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { ResultCode } from '../../app/api-instance'
-import { basicErrorMessage } from '../../app/app-slice'
+import { basicErrorMessage } from '../../app/basic-error-message'
+import { logout } from '../Auth/auth-slice'
 
 // thunks
 export const fetchTodolists = createAppAsyncThunk(
@@ -99,9 +100,6 @@ const todolistSlice = createSlice({
 
       if (index !== -1) state.entities[index].filter = filter
     },
-    cleanTodolists(state) {
-      state.entities = []
-    },
     resetTodolistsError(state) {
       state.error = null
     },
@@ -164,6 +162,11 @@ const todolistSlice = createSlice({
       state.status = 'failure'
       state.error = action.payload
     })
+
+    // shared actions
+    builder.addCase(logout.fulfilled, state => {
+      state.entities = []
+    })
   },
 })
 
@@ -185,7 +188,7 @@ export const selectTodolist = (state: RootState, todoId: string) => {
   return selectAllTodolists(state).find(tl => tl.id === todoId) as TodolistDomain
 }
 
-export const { updateTodolistFilter, cleanTodolists, resetTodolistsError } = todolistSlice.actions
+export const { updateTodolistFilter, resetTodolistsError } = todolistSlice.actions
 export default todolistSlice.reducer
 
 export type Filter = 'active' | 'completed' | 'all'

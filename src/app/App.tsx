@@ -8,14 +8,14 @@ import CircularProgress from '@mui/material/CircularProgress'
 import ErrorSnackbar from '../common/components/ErrorSnackbar/ErrorSnackbar'
 import { useAppDispatch, useAppSelector } from '../utils/hooks/hooks'
 import { selectIsInit } from './app-slice'
-import { authMeTC } from '../features/Auth/auth-slice'
+import { authMe } from '../features/Auth/auth-shared-actions'
 
 const App = () => {
   const isInitialized = useAppSelector(selectIsInit)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    dispatch(authMeTC())
+    dispatch(authMe())
   }, [dispatch])
 
   return (

@@ -1,95 +1,100 @@
-import { AppThunk, RootState } from '../../app/store'
+import { RootState, State } from '../../app/store'
 import { ResultCode } from '../../app/api-instance'
-import { initApp, selectIsInit } from '../../app/app-slice'
-import { cleanTodolists } from '../Todolist/todolist-slice'
-import { cleanTasks } from '../Task/task-slice'
-import { AxiosError } from 'axios'
-import { handleError } from '../../utils/helpers/handleErrors'
 import { createSlice } from '@reduxjs/toolkit'
 import { authAPI, LoginData } from './auth-api'
+import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
+import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
+import { authMe } from './auth-shared-actions'
+import { basicErrorMessage } from '../../app/basic-error-message'
 
-const initialState = {
+// thunks
+export const login = createAppAsyncThunk(
+  'auth/login',
+  async (arg: LoginData, { rejectWithValue }) => {
+    try {
+      const { data } = await authAPI.login(arg)
+
+      if (data.resultCode === ResultCode.Ok) return { userId: data.data.userId }
+
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
+    } catch (e) {
+      return rejectWithValue(getThunkErrorMessage(e as Error))
+    }
+  }
+)
+
+export const logout = createAppAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await authAPI.logout()
+
+    if (data.resultCode === ResultCode.Ok) return
+
+    return rejectWithValue(data.messages[0] || basicErrorMessage)
+  } catch (e) {
+    return rejectWithValue(getThunkErrorMessage(e as Error))
+  }
+})
+
+const initialState: State & { isLoggedIn: boolean } = {
+  status: 'idle',
+  error: null,
+  entities: undefined,
   isLoggedIn: false,
 }
 
+// slice
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    login(state) {
+    resetAuthError: state => {
+      state.error = null
+    },
+  },
+  extraReducers: builder => {
+    builder.addCase(login.pending, state => {
+      state.status = 'pending'
+    })
+    builder.addCase(login.fulfilled, state => {
       state.isLoggedIn = true
-    },
-    logout(state) {
+      state.status = 'success'
+    })
+    builder.addCase(login.rejected, (state, action) => {
+      state.error = action.payload
+      state.status = 'failure'
+    })
+
+    builder.addCase(logout.pending, state => {
+      state.status = 'pending'
+    })
+    builder.addCase(logout.fulfilled, state => {
       state.isLoggedIn = false
-    },
+      state.status = 'success'
+    })
+    builder.addCase(logout.rejected, (state, action) => {
+      state.error = action.payload
+      state.status = 'failure'
+    })
+
+    builder.addCase(authMe.pending, state => {
+      state.status = 'pending'
+    })
+    builder.addCase(authMe.fulfilled, (state, action) => {
+      if (action.payload.isAuthorized) state.isLoggedIn = true
+      state.status = 'success'
+    })
+    builder.addCase(authMe.rejected, (state, action) => {
+      state.error = action.payload
+      state.status = 'failure'
+    })
   },
 })
 
-// thunks
-export const loginTC =
-  (config: LoginData): AppThunk<Promise<void>> =>
-  dispatch => {
-    // dispatch(setAppStatus('pending'))
-    return authAPI
-      .login(config)
-      .then(({ data }) => {
-        if (data.resultCode === ResultCode.Ok) {
-          dispatch(login())
-          // dispatch(setAppStatus('success'))
-        } else {
-          const message = data.messages[0] || 'Something went wrong!'
-          throw new Error(message)
-        }
-      })
-      .catch((e: Error | AxiosError) => {
-        handleError(e, dispatch)
-      })
-  }
-
-export const logoutTC = (): AppThunk<Promise<void>> => dispatch => {
-  // dispatch(setAppStatus('pending'))
-  return authAPI
-    .logout()
-    .then(({ data }) => {
-      if (data.resultCode === ResultCode.Ok) {
-        dispatch(logout())
-        dispatch(cleanTodolists())
-        dispatch(cleanTasks())
-        // dispatch(setAppStatus('success'))
-      } else {
-        const message = data.messages[0] || 'Something went wrong!'
-        throw new Error(message)
-      }
-    })
-    .catch((e: Error | AxiosError) => {
-      handleError(e, dispatch)
-    })
-}
-
-export const authMeTC = (): AppThunk => (dispatch, getState) => {
-  authAPI
-    .me()
-    .then(({ data }) => {
-      if (data.resultCode === ResultCode.Ok) {
-        dispatch(login())
-      } else {
-        const message = data.messages[0] || 'Something went wrong!'
-        throw new Error(message)
-      }
-    })
-    .catch((e: Error | AxiosError) => {
-      const isInitialized = selectIsInit(getState())
-      const notAuthorizedOnFirstLoad = e.message === 'You are not authorized' && !isInitialized
-
-      if (notAuthorizedOnFirstLoad) return
-
-      handleError(e, dispatch)
-    })
-    .finally(() => dispatch(initApp()))
-}
-
 // selectors
 export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn
+export const selectAuthStatus = (state: RootState) => state.auth.status
+export const selectAuthError = (state: RootState) => state.auth.error
 
-export const { login, logout } = authSlice.actions
+export const { resetAuthError } = authSlice.actions
+
 export default authSlice.reducer
