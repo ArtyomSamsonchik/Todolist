@@ -32,11 +32,9 @@ export const addTodolist = createAppAsyncThunk(
     try {
       const { data } = await todolistAPI.createTodo(title)
 
-      if (data.resultCode === ResultCode.Ok) {
-        return data.data.item
-      } else {
-        return rejectWithValue(data.messages[0] || basicErrorMessage)
-      }
+      if (data.resultCode === ResultCode.Ok) return data.data.item
+
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
     } catch (e) {
       return rejectWithValue(getThunkErrorMessage(e as Error))
     }
@@ -48,11 +46,9 @@ export const deleteTodolist = createAppAsyncThunk(
     try {
       const { data } = await todolistAPI.deleteTodo(todoId)
 
-      if (data.resultCode === ResultCode.Ok) {
-        return { todoId }
-      } else {
-        return rejectWithValue(data.messages[0] || basicErrorMessage)
-      }
+      if (data.resultCode === ResultCode.Ok) return { todoId }
+
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
     } catch (e) {
       return rejectWithValue(getThunkErrorMessage(e as Error))
     }
@@ -66,11 +62,9 @@ export const updateTodolistTitle = createAppAsyncThunk(
     try {
       const { data } = await todolistAPI.updateTodoTitle(todoId, title)
 
-      if (data.resultCode === ResultCode.Ok) {
-        return { todoId, title }
-      } else {
-        return rejectWithValue(data.messages[0] || basicErrorMessage)
-      }
+      if (data.resultCode === ResultCode.Ok) return { todoId, title }
+
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
     } catch (e) {
       return rejectWithValue(getThunkErrorMessage(e as Error))
     }
@@ -181,6 +175,7 @@ export const selectTodolist = (state: RootState, todoId: string) => {
 }
 
 export const { updateTodolistFilter, resetTodolistsError } = todolistSlice.actions
+
 export default todolistSlice.reducer
 
 export type Filter = 'active' | 'completed' | 'all'

@@ -23,17 +23,20 @@ export const login = createAppAsyncThunk(
   }
 )
 
-export const logout = createAppAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
-  try {
-    const { data } = await authAPI.logout()
+export const logout = createAppAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }
+  ) => {
+    try {
+      const { data } = await authAPI.logout()
 
-    if (data.resultCode === ResultCode.Ok) return
+      if (data.resultCode === ResultCode.Ok) return
 
-    return rejectWithValue(data.messages[0] || basicErrorMessage)
-  } catch (e) {
-    return rejectWithValue(getThunkErrorMessage(e as Error))
-  }
-})
+      return rejectWithValue(data.messages[0] || basicErrorMessage)
+    } catch (e) {
+      return rejectWithValue(getThunkErrorMessage(e as Error))
+    }
+  })
 
 const initialState: State & { isLoggedIn: boolean } = {
   status: 'idle',
