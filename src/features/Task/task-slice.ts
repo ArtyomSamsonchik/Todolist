@@ -6,10 +6,15 @@ import { fetchTasks } from './task-shared-actions'
 import { addTodolist, deleteTodolist, fetchTodolists, Filter } from '../Todolist/todolist-slice'
 import { createSelector } from 'reselect'
 import { shallowEqual } from 'react-redux'
-import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { basicErrorMessage } from '../../app/basic-error-message'
 import { logout } from '../Auth/auth-slice'
+import {
+  createAppAsyncThunk,
+  isFulfilledAction,
+  isPendingAction,
+  isRejectedAction,
+} from '../../app/app-async-thunk'
 
 // thunks
 export const addTask = createAppAsyncThunk(
@@ -81,90 +86,74 @@ const taskSlice = createSlice({
     entities: {},
     status: 'idle',
     error: null,
-  } as State<TasksState>,
+    pendingTaskId: null,
+  } as TaskState,
   reducers: {
     resetTasksError(state) {
       state.error = null
     },
   },
   extraReducers: builder => {
-    builder.addCase(fetchTasks.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(fetchTasks.fulfilled, (state, action) => {
-      const { todoId, tasks } = action.payload
+    builder
+      .addCase(fetchTasks.fulfilled, (state, action) => {
+        const { todoId, tasks } = action.payload
 
-      state.entities[todoId] = tasks
-      state.status = 'success'
-    })
-    builder.addCase(fetchTasks.rejected, (state, action) => {
-      state.error = action.payload
-      state.status = 'failure'
-    })
-
-    builder.addCase(addTask.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(addTask.fulfilled, (state, action) => {
-      const { todoId, task } = action.payload
-
-      state.entities[todoId].unshift(task)
-      state.status = 'success'
-    })
-    builder.addCase(addTask.rejected, (state, action) => {
-      state.error = action.payload
-      state.status = 'failure'
-    })
-
-    builder.addCase(deleteTask.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(deleteTask.fulfilled, (state, action) => {
-      const { todoId, taskId } = action.payload
-      const index = state.entities[todoId].findIndex(t => t.id === taskId)
-
-      if (index !== -1) {
-        state.entities[todoId].splice(index, 1)
-        state.status = 'success'
-      }
-    })
-    builder.addCase(deleteTask.rejected, (state, action) => {
-      state.error = action.payload
-      state.status = 'failure'
-    })
-
-    builder.addCase(updateTask.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(updateTask.fulfilled, (state, action) => {
-      const { id, todoListId } = action.payload
-      const index = state.entities[todoListId].findIndex(t => t.id === id)
-
-      if (index !== -1) {
-        state.entities[todoListId][index] = action.payload
-        state.status = 'success'
-      }
-    })
-    builder.addCase(updateTask.rejected, (state, action) => {
-      state.error = action.payload
-      state.status = 'failure'
-    })
-
-    // shared actions
-    builder.addCase(fetchTodolists.fulfilled, (state, action) => {
-      action.payload.forEach(tl => {
-        state.entities[tl.id] = []
+        state.entities[todoId] = tasks
       })
-    })
-    builder.addCase(addTodolist.fulfilled, (state, action) => {
-      state.entities[action.payload.id] = []
-    })
-    builder.addCase(deleteTodolist.fulfilled, (state, action) => {
-      delete state.entities[action.payload.todoId]
-    })
-    builder.addCase(logout.fulfilled, state => {
-      state.entities = {}
-    })
+      .addCase(addTask.fulfilled, (state, action) => {
+        const { todoId, task } = action.payload
+
+        state.entities[todoId].unshift(task)
+      })
+      .addCase(deleteTask.pending, (state, action) => {
+        state.pendingTaskId = action.meta.arg.taskId
+      })
+      .addCase(deleteTask.fulfilled, (state, action) => {
+        const { todoId, taskId } = action.payload
+        const index = state.entities[todoId].findIndex(t => t.id === taskId)
+
+        if (index !== -1) {
+          state.entities[todoId].splice(index, 1)
+        }
+      })
+      .addCase(updateTask.pending, (state, action) => {
+        state.pendingTaskId = action.meta.arg.taskId
+      })
+      .addCase(updateTask.fulfilled, (state, action) => {
+        const { id, todoListId } = action.payload
+        const index = state.entities[todoListId].findIndex(t => t.id === id)
+
+        if (index !== -1) {
+          state.entities[todoListId][index] = action.payload
+        }
+      })
+      // shared actions
+      .addCase(fetchTodolists.fulfilled, (state, action) => {
+        action.payload.forEach(tl => {
+          state.entities[tl.id] = []
+        })
+      })
+      .addCase(addTodolist.fulfilled, (state, action) => {
+        state.entities[action.payload.id] = []
+      })
+      .addCase(deleteTodolist.fulfilled, (state, action) => {
+        delete state.entities[action.payload.todoId]
+      })
+      .addCase(logout.fulfilled, state => {
+        state.entities = {}
+      })
+      // matchers for related actions
+      .addMatcher(isPendingAction, state => {
+        state.status = 'pending'
+      })
+      .addMatcher(isFulfilledAction, state => {
+        state.status = 'success'
+        state.pendingTaskId = null
+      })
+      .addMatcher(isRejectedAction, (state, action) => {
+        state.error = action.payload
+        state.status = 'failure'
+      })
   },
 })
 
@@ -202,10 +191,16 @@ export const selectTask = (state: RootState, todoId: string, taskId: string) => 
 }
 export const selectTasksStatus = (state: RootState) => state.tasks.status
 export const selectTasksError = (state: RootState) => state.tasks.error
+export const selectTaskIsLoading = (state: RootState, taskId: string) => {
+  return state.tasks.status === 'pending' && state.tasks.pendingTaskId === taskId
+}
 
 export const { resetTasksError } = taskSlice.actions
 
 export default taskSlice.reducer
 
 export type TaskModel = Omit<Task, 'id' | 'todoListId' | 'order' | 'deadline'>
-export type TasksState = Record<string, Task[]>
+export type TasksMap = Record<string, Task[]>
+type TaskState = State<TasksMap> & {
+  pendingTaskId: string | null
+}

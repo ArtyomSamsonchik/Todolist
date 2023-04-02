@@ -1,4 +1,4 @@
-import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
+import { createAppAsyncThunk } from '../../app/app-async-thunk'
 import { authAPI } from './auth-api'
 import { ResultCode } from '../../app/api-instance'
 import { initApp, selectIsInit } from '../../app/app-slice'

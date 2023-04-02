@@ -2,10 +2,10 @@ import { RootState, State } from '../../app/store'
 import { ResultCode } from '../../app/api-instance'
 import { createSlice } from '@reduxjs/toolkit'
 import { authAPI, LoginData } from './auth-api'
-import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { authMe } from './auth-shared-actions'
 import { basicErrorMessage } from '../../app/basic-error-message'
+import { createAppAsyncThunk } from '../../app/app-async-thunk'
 
 // thunks
 export const login = createAppAsyncThunk(
@@ -23,20 +23,17 @@ export const login = createAppAsyncThunk(
   }
 )
 
-export const logout = createAppAsyncThunk(
-  'auth/logout',
-  async (_, { rejectWithValue }
-  ) => {
-    try {
-      const { data } = await authAPI.logout()
+export const logout = createAppAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await authAPI.logout()
 
-      if (data.resultCode === ResultCode.Ok) return
+    if (data.resultCode === ResultCode.Ok) return
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
-    } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
-    }
-  })
+    return rejectWithValue(data.messages[0] || basicErrorMessage)
+  } catch (e) {
+    return rejectWithValue(getThunkErrorMessage(e as Error))
+  }
+})
 
 const initialState: State & { isLoggedIn: boolean } = {
   status: 'idle',

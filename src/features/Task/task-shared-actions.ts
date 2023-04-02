@@ -1,5 +1,5 @@
 import { taskAPI } from './task-api'
-import { createAppAsyncThunk } from '../../utils/helpers/createAppAsyncThunk'
+import { createAppAsyncThunk } from '../../app/app-async-thunk'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { basicErrorMessage } from '../../app/basic-error-message'
 
