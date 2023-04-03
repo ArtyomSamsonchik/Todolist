@@ -19,9 +19,9 @@ const TodolistList = React.memo(() => {
     }
   }, [dispatch, isLoggedIn])
 
-  const addTodolistCB = useCallback(
-    async (title: string) => {
-      await dispatch(addTodolist(title))
+  const handleAddTodolist = useCallback(
+    (title: string) => {
+      return dispatch(addTodolist(title))
     },
     [dispatch]
   )
@@ -34,7 +34,7 @@ const TodolistList = React.memo(() => {
     <>
       <Grid container spacing={3} justifyContent="center">
         <Grid item xs={12}>
-          <AddItemForm label="Add todolist" addItemCallback={addTodolistCB} />
+          <AddItemForm label="Add todolist" addItemCallback={handleAddTodolist} />
         </Grid>
         {todoIds.map(id => (
           <Todolist key={id} todoId={id} />

@@ -1,5 +1,4 @@
 import React, { FC, useCallback, useMemo } from 'react'
-
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import Paper from '@mui/material/Paper'
@@ -9,9 +8,6 @@ import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
-import CircularProgress from '@mui/material/CircularProgress'
-import MuiBackdrop from '@mui/material/Backdrop'
-
 import {
   deleteTodolist,
   Filter,
@@ -21,37 +17,16 @@ import {
   updateTodolistTitle,
 } from './todolist-slice'
 import { addTask, filteredTasksSelectorFactory } from '../Task/task-slice'
-
 import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
 import EditableSpan from '../../common/components/EditableSpan'
-
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
+import { LoadingBackdrop } from '../../common/components/LoadingBackdrop/LoadingBackdrop'
 
-const TodolistBackdrop: FC<{ open: boolean }> = ({ open }) => {
-  return (
-    <MuiBackdrop
-      open={open}
-      sx={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        zIndex: 10,
-        backgroundColor: 'unset',
-      }}
-    >
-      <CircularProgress sx={{ color: theme => theme.palette.grey[600] }} size={50} />
-    </MuiBackdrop>
-  )
-}
-
-type TodolistProps = { todoId: string }
-
-const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
+const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
   const todolist = useAppSelector(state => selectTodolist(state, todoId))
   const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
   const isLoading = useAppSelector(state => selectTodolistIsLoading(state, todoId))
-
   const dispatch = useAppDispatch()
 
   const handleDeleteTodolist = () => dispatch(deleteTodolist(todoId))
@@ -79,12 +54,8 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
   return (
     <Grid item>
       <Paper elevation={3} sx={{ position: 'relative' }}>
-        <TodolistBackdrop open={isLoading} />
-        <List
-          sx={{
-            opacity: theme => (isLoading ? theme.palette.action.disabledOpacity : 1),
-          }}
-        >
+        <LoadingBackdrop open={isLoading} />
+        <List>
           <ListItem component="div">
             <EditableSpan variant="h6" disabled={isLoading} changeTitle={changeTodolistTitle}>
               {todolist.title}
