@@ -4,7 +4,12 @@ import { shallowEqual } from 'react-redux'
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Todolist, todolistAPI } from './todolist-api'
 import { createTodolistDomainEntity } from '../../utils/helpers/createTodolistDomainEntity'
-import { createAppAsyncThunk } from '../../app/app-async-thunk'
+import {
+  createAppAsyncThunk,
+  isFulfilledAction,
+  isPendingAction,
+  isRejectedAction,
+} from '../../app/app-async-thunk'
 import { fetchTasks } from '../Task/task-shared-actions'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { ResultCode } from '../../app/api-instance'
@@ -78,6 +83,7 @@ const todolistSlice = createSlice({
     entities: [],
     status: 'idle',
     error: null,
+    pendingEntityId: null,
   } as State<TodolistDomain[]>,
   reducers: {
     updateTodolistFilter(state, action: PayloadAction<{ todoId: string; filter: Filter }>) {
@@ -91,68 +97,52 @@ const todolistSlice = createSlice({
     },
   },
   extraReducers: builder => {
-    builder.addCase(fetchTodolists.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(fetchTodolists.fulfilled, (state, action) => {
-      state.entities = action.payload.map(tl => createTodolistDomainEntity(tl))
-      state.status = 'success'
-    })
-    builder.addCase(fetchTodolists.rejected, (state, action) => {
-      state.status = 'failure'
-      state.error = action.payload
-    })
+    builder
+      .addCase(fetchTodolists.fulfilled, (state, action) => {
+        state.entities = action.payload.map(tl => createTodolistDomainEntity(tl))
+      })
+      .addCase(addTodolist.fulfilled, (state, action) => {
+        const newTodolist = createTodolistDomainEntity(action.payload)
 
-    builder.addCase(addTodolist.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(addTodolist.fulfilled, (state, action) => {
-      const newTodolist = createTodolistDomainEntity(action.payload)
+        state.entities.unshift(newTodolist)
+      })
+      .addCase(deleteTodolist.pending, (state, action) => {
+        state.pendingEntityId = action.meta.arg
+      })
+      .addCase(deleteTodolist.fulfilled, (state, action) => {
+        const { todoId } = action.payload
+        const index = state.entities.findIndex(tl => tl.id === todoId)
 
-      state.entities.unshift(newTodolist)
-      state.status = 'success'
-    })
-    builder.addCase(addTodolist.rejected, (state, action) => {
-      state.status = 'failure'
-      state.error = action.payload
-    })
+        if (index !== -1) {
+          state.entities.splice(index, 1)
+        }
+      })
+      .addCase(updateTodolistTitle.pending, (state, action) => {
+        state.pendingEntityId = action.meta.arg.todoId
+      })
+      .addCase(updateTodolistTitle.fulfilled, (state, action) => {
+        const { todoId, title } = action.payload
+        const index = state.entities.findIndex(tl => tl.id === todoId)
 
-    builder.addCase(deleteTodolist.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(deleteTodolist.fulfilled, (state, action) => {
-      const { todoId } = action.payload
-      const index = state.entities.findIndex(tl => tl.id === todoId)
+        if (index !== -1) state.entities[index].title = title
+      })
 
-      if (index !== -1) {
-        state.entities.splice(index, 1)
+      // shared actions
+      .addCase(logout.fulfilled, state => {
+        state.entities = []
+      })
+      // matchers for related actions
+      .addMatcher(isPendingAction, state => {
+        state.status = 'pending'
+      })
+      .addMatcher(isFulfilledAction, state => {
         state.status = 'success'
-      }
-    })
-    builder.addCase(deleteTodolist.rejected, (state, action) => {
-      state.status = 'failure'
-      state.error = action.payload
-    })
-
-    builder.addCase(updateTodolistTitle.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(updateTodolistTitle.fulfilled, (state, action) => {
-      const { todoId, title } = action.payload
-      const index = state.entities.findIndex(tl => tl.id === todoId)
-
-      if (index !== -1) state.entities[index].title = title
-      state.status = 'success'
-    })
-    builder.addCase(updateTodolistTitle.rejected, (state, action) => {
-      state.status = 'failure'
-      state.error = action.payload
-    })
-
-    // shared actions
-    builder.addCase(logout.fulfilled, state => {
-      state.entities = []
-    })
+        state.pendingEntityId = null
+      })
+      .addMatcher(isRejectedAction, (state, action) => {
+        state.error = action.payload
+        state.status = 'failure'
+      })
   },
 })
 
@@ -161,6 +151,9 @@ export const selectAllTodolists = (state: RootState) => state.todolists.entities
 
 export const selectTodolistsStatus = (state: RootState) => state.todolists.status
 export const selectTodolistsError = (state: RootState) => state.todolists.error
+export const selectTodolistIsLoading = (state: RootState, todoId: string) => {
+  return state.todolists.status === 'pending' && state.todolists.pendingEntityId === todoId
+}
 
 export const selectTodolistIds = createSelector(
   selectAllTodolists,

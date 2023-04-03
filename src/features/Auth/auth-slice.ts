@@ -35,10 +35,9 @@ export const logout = createAppAsyncThunk('auth/logout', async (_, { rejectWithV
   }
 })
 
-const initialState: State & { isLoggedIn: boolean } = {
+const initialState: Pick<State, 'error' | 'status'> & { isLoggedIn: boolean } = {
   status: 'idle',
   error: null,
-  entities: undefined,
   isLoggedIn: false,
 }
 

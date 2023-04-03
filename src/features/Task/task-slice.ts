@@ -86,8 +86,8 @@ const taskSlice = createSlice({
     entities: {},
     status: 'idle',
     error: null,
-    pendingTaskId: null,
-  } as TaskState,
+    pendingEntityId: null,
+  } as State<TasksMap>,
   reducers: {
     resetTasksError(state) {
       state.error = null
@@ -106,7 +106,7 @@ const taskSlice = createSlice({
         state.entities[todoId].unshift(task)
       })
       .addCase(deleteTask.pending, (state, action) => {
-        state.pendingTaskId = action.meta.arg.taskId
+        state.pendingEntityId = action.meta.arg.taskId
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
         const { todoId, taskId } = action.payload
@@ -117,7 +117,7 @@ const taskSlice = createSlice({
         }
       })
       .addCase(updateTask.pending, (state, action) => {
-        state.pendingTaskId = action.meta.arg.taskId
+        state.pendingEntityId = action.meta.arg.taskId
       })
       .addCase(updateTask.fulfilled, (state, action) => {
         const { id, todoListId } = action.payload
@@ -148,7 +148,7 @@ const taskSlice = createSlice({
       })
       .addMatcher(isFulfilledAction, state => {
         state.status = 'success'
-        state.pendingTaskId = null
+        state.pendingEntityId = null
       })
       .addMatcher(isRejectedAction, (state, action) => {
         state.error = action.payload
@@ -192,7 +192,7 @@ export const selectTask = (state: RootState, todoId: string, taskId: string) => 
 export const selectTasksStatus = (state: RootState) => state.tasks.status
 export const selectTasksError = (state: RootState) => state.tasks.error
 export const selectTaskIsLoading = (state: RootState, taskId: string) => {
-  return state.tasks.status === 'pending' && state.tasks.pendingTaskId === taskId
+  return state.tasks.status === 'pending' && state.tasks.pendingEntityId === taskId
 }
 
 export const { resetTasksError } = taskSlice.actions
@@ -201,6 +201,3 @@ export default taskSlice.reducer
 
 export type TaskModel = Omit<Task, 'id' | 'todoListId' | 'order' | 'deadline'>
 export type TasksMap = Record<string, Task[]>
-type TaskState = State<TasksMap> & {
-  pendingTaskId: string | null
-}

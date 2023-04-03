@@ -23,6 +23,7 @@ export type State<T = void> = {
   status: RequestStatus
   error: string | null | undefined
   entities: T
+  pendingEntityId: string | null
 }
 
 if (process.env.NODE_ENV === 'development') {

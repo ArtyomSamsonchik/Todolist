@@ -30,7 +30,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
       patch: { status },
     }
 
-    return dispatch(updateTask(model))
+    dispatch(updateTask(model))
   }
 
   const changeTaskTitle = useCallback(
@@ -41,7 +41,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
         patch: { title },
       }
 
-      return dispatch(updateTask(model))
+      dispatch(updateTask(model))
     },
     [dispatch, updateTask, taskId, todoId]
   )

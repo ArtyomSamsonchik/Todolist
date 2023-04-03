@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo, useState } from 'react'
+import React, { FC, useCallback, useMemo } from 'react'
 
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
@@ -16,6 +16,7 @@ import {
   deleteTodolist,
   Filter,
   selectTodolist,
+  selectTodolistIsLoading,
   updateTodolistFilter,
   updateTodolistTitle,
 } from './todolist-slice'
@@ -49,18 +50,11 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
   const todolist = useAppSelector(state => selectTodolist(state, todoId))
   const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
-
-  const [todolistStatus, setTodolistStatus] = useState<'loading' | 'idle'>('idle')
+  const isLoading = useAppSelector(state => selectTodolistIsLoading(state, todoId))
 
   const dispatch = useAppDispatch()
 
-  const todolistIsLoading = todolistStatus === 'loading'
-
-  const handleDeleteTodolist = async () => {
-    setTodolistStatus('loading')
-    await dispatch(deleteTodolist(todoId))
-    setTodolistStatus('idle')
-  }
+  const handleDeleteTodolist = () => dispatch(deleteTodolist(todoId))
 
   const handleFilterChange = (filter: Filter) => () => {
     if (todolist.filter === filter) return
@@ -69,18 +63,12 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
   }
 
   const changeTodolistTitle = useCallback(
-    async (title: string) => {
-      setTodolistStatus('loading')
-      await dispatch(updateTodolistTitle({ todoId, title }))
-      setTodolistStatus('idle')
-    },
+    (title: string) => dispatch(updateTodolistTitle({ todoId, title })),
     [dispatch, todoId]
   )
 
   const handleAddTaskClick = useCallback(
-    (title: string) => {
-      return dispatch(addTask({ todoId, title }))
-    },
+    (title: string) => dispatch(addTask({ todoId, title })),
     [dispatch, todoId]
   )
 
@@ -91,21 +79,17 @@ const Todolist: FC<TodolistProps> = React.memo(({ todoId }) => {
   return (
     <Grid item>
       <Paper elevation={3} sx={{ position: 'relative' }}>
-        <TodolistBackdrop open={todolistIsLoading} />
+        <TodolistBackdrop open={isLoading} />
         <List
           sx={{
-            opacity: theme => (todolistIsLoading ? theme.palette.action.disabledOpacity : 1),
+            opacity: theme => (isLoading ? theme.palette.action.disabledOpacity : 1),
           }}
         >
           <ListItem component="div">
-            <EditableSpan
-              variant="h6"
-              disabled={todolistIsLoading}
-              changeTitle={changeTodolistTitle}
-            >
+            <EditableSpan variant="h6" disabled={isLoading} changeTitle={changeTodolistTitle}>
               {todolist.title}
             </EditableSpan>
-            <IconButton onClick={handleDeleteTodolist} disabled={todolistIsLoading}>
+            <IconButton onClick={handleDeleteTodolist} disabled={isLoading}>
               <DeleteIcon />
             </IconButton>
           </ListItem>
