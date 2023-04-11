@@ -7,6 +7,7 @@ import store from './app/store'
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 import TodolistList from './features/Todolist/TodolistList'
 import LoginPage from './features/Auth/LoginPage/LoginPage'
+import PATH from './app/path'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -20,15 +21,15 @@ const router = createHashRouter([
         element: <TodolistList />,
       },
       {
-        path: 'todolist',
+        path: PATH.TODOLIST,
         element: <TodolistList />,
       },
       {
-        path: 'login',
+        path: PATH.LOGIN,
         element: <LoginPage />,
       },
       {
-        path: '404',
+        path: PATH.ERROR,
         element: <h1>404 Page not found</h1>,
       },
       {

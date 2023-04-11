@@ -1,7 +1,7 @@
 const PATH = {
   TODOLIST: 'todolist',
   LOGIN: 'login',
-  ERROR: 'error',
+  ERROR: '404',
 } as const
 
 export type PathKeys = Lowercase<keyof typeof PATH>
