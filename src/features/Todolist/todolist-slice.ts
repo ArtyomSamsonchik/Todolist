@@ -1,20 +1,34 @@
 import { RootState, State } from '../../app/store'
 import { createSelector } from 'reselect'
 import { shallowEqual } from 'react-redux'
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Todolist, todolistAPI } from './todolist-api'
 import { createTodolistDomainEntity } from '../../utils/helpers/createTodolistDomainEntity'
 import {
   createAppAsyncThunk,
+  FulfilledAction,
   isFulfilledAction,
   isPendingAction,
   isRejectedAction,
+  PendingAction,
+  RejectedAction,
 } from '../../app/app-async-thunk'
 import { fetchTasks } from '../Task/task-shared-actions'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { ResultCode } from '../../app/api-instance'
 import { basicErrorMessage } from '../../app/basic-error-message'
 import { logout } from '../Auth/auth-slice'
+
+const isTodolistAction = (action: AnyAction) => action.type.startsWith('todolist')
+const isPendingTodolistAction = (action: AnyAction): action is PendingAction => {
+  return isTodolistAction(action) && isPendingAction(action)
+}
+const isFulfilledTodolistAction = (action: AnyAction): action is FulfilledAction => {
+  return isTodolistAction(action) && isFulfilledAction(action)
+}
+const isRejectedTodolistAction = (action: AnyAction): action is RejectedAction => {
+  return isTodolistAction(action) && isRejectedAction(action)
+}
 
 // thunks
 export const fetchTodolists = createAppAsyncThunk(
@@ -131,17 +145,18 @@ const todolistSlice = createSlice({
       .addCase(logout.fulfilled, state => {
         state.entities = []
       })
+
       // matchers for related actions
-      .addMatcher(isPendingAction, state => {
+      .addMatcher(isPendingTodolistAction, state => {
         state.status = 'pending'
       })
-      .addMatcher(isFulfilledAction, state => {
+      .addMatcher(isFulfilledTodolistAction, (state, { meta }) => {
         state.status = 'success'
         state.pendingEntityId = null
       })
-      .addMatcher(isRejectedAction, (state, action) => {
-        state.error = action.payload
+      .addMatcher(isRejectedTodolistAction, (state, action) => {
         state.status = 'failure'
+        state.error = action.payload
       })
   },
 })

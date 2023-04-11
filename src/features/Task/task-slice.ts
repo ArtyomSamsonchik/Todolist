@@ -1,6 +1,6 @@
 import { ResultCode } from '../../app/api-instance'
 import { RootState, State } from '../../app/store'
-import { createSlice } from '@reduxjs/toolkit'
+import { AnyAction, createSlice } from '@reduxjs/toolkit'
 import { Task, taskAPI, TaskStatus } from './task-api'
 import { fetchTasks } from './task-shared-actions'
 import { addTodolist, deleteTodolist, fetchTodolists, Filter } from '../Todolist/todolist-slice'
@@ -11,10 +11,24 @@ import { basicErrorMessage } from '../../app/basic-error-message'
 import { logout } from '../Auth/auth-slice'
 import {
   createAppAsyncThunk,
+  FulfilledAction,
   isFulfilledAction,
   isPendingAction,
   isRejectedAction,
+  PendingAction,
+  RejectedAction,
 } from '../../app/app-async-thunk'
+
+const isTaskAction = (action: AnyAction) => action.type.startsWith('task')
+const isPendingTaskAction = (action: AnyAction): action is PendingAction => {
+  return isTaskAction(action) && isPendingAction(action)
+}
+const isFulfilledTaskAction = (action: AnyAction): action is FulfilledAction => {
+  return isTaskAction(action) && isFulfilledAction(action)
+}
+const isRejectedTaskAction = (action: AnyAction): action is RejectedAction => {
+  return isTaskAction(action) && isRejectedAction(action)
+}
 
 // thunks
 export const addTask = createAppAsyncThunk(
@@ -127,6 +141,7 @@ const taskSlice = createSlice({
           state.entities[todoListId][index] = action.payload
         }
       })
+
       // shared actions
       .addCase(fetchTodolists.fulfilled, (state, action) => {
         action.payload.forEach(tl => {
@@ -142,17 +157,18 @@ const taskSlice = createSlice({
       .addCase(logout.fulfilled, state => {
         state.entities = {}
       })
+
       // matchers for related actions
-      .addMatcher(isPendingAction, state => {
+      .addMatcher(isPendingTaskAction, state => {
         state.status = 'pending'
       })
-      .addMatcher(isFulfilledAction, state => {
+      .addMatcher(isFulfilledTaskAction, state => {
         state.status = 'success'
         state.pendingEntityId = null
       })
-      .addMatcher(isRejectedAction, (state, action) => {
-        state.error = action.payload
+      .addMatcher(isRejectedTaskAction, (state, action) => {
         state.status = 'failure'
+        state.error = action.payload
       })
   },
 })

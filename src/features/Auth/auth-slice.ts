@@ -1,11 +1,30 @@
 import { RootState, State } from '../../app/store'
 import { ResultCode } from '../../app/api-instance'
-import { createSlice } from '@reduxjs/toolkit'
+import { AnyAction, createSlice } from '@reduxjs/toolkit'
 import { authAPI, LoginData } from './auth-api'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { authMe } from './auth-shared-actions'
 import { basicErrorMessage } from '../../app/basic-error-message'
-import { createAppAsyncThunk } from '../../app/app-async-thunk'
+import {
+  createAppAsyncThunk,
+  FulfilledAction,
+  isFulfilledAction,
+  isPendingAction,
+  isRejectedAction,
+  PendingAction,
+  RejectedAction,
+} from '../../app/app-async-thunk'
+
+const isAuthAction = (action: AnyAction) => action.type.startsWith('auth')
+const isPendingAuthAction = (action: AnyAction): action is PendingAction => {
+  return isAuthAction(action) && isPendingAction(action)
+}
+const isFulfilledAuthAction = (action: AnyAction): action is FulfilledAction => {
+  return isAuthAction(action) && isFulfilledAction(action)
+}
+const isRejectedAuthAction = (action: AnyAction): action is RejectedAction => {
+  return isAuthAction(action) && isRejectedAction(action)
+}
 
 // thunks
 export const login = createAppAsyncThunk(
@@ -51,41 +70,31 @@ const authSlice = createSlice({
     },
   },
   extraReducers: builder => {
-    builder.addCase(login.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(login.fulfilled, state => {
-      state.isLoggedIn = true
-      state.status = 'success'
-    })
-    builder.addCase(login.rejected, (state, action) => {
-      state.error = action.payload
-      state.status = 'failure'
-    })
+    builder
+      .addCase(login.fulfilled, state => {
+        state.isLoggedIn = true
+        state.status = 'success'
+      })
+      .addCase(logout.fulfilled, state => {
+        state.isLoggedIn = false
+        state.status = 'success'
+      })
+      .addCase(authMe.fulfilled, (state, action) => {
+        if (action.payload.isAuthorized) state.isLoggedIn = true
+        state.status = 'success'
+      })
 
-    builder.addCase(logout.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(logout.fulfilled, state => {
-      state.isLoggedIn = false
-      state.status = 'success'
-    })
-    builder.addCase(logout.rejected, (state, action) => {
-      state.error = action.payload
-      state.status = 'failure'
-    })
-
-    builder.addCase(authMe.pending, state => {
-      state.status = 'pending'
-    })
-    builder.addCase(authMe.fulfilled, (state, action) => {
-      if (action.payload.isAuthorized) state.isLoggedIn = true
-      state.status = 'success'
-    })
-    builder.addCase(authMe.rejected, (state, action) => {
-      state.error = action.payload
-      state.status = 'failure'
-    })
+      // matchers for related actions
+      .addMatcher(isPendingAuthAction, state => {
+        state.status = 'pending'
+      })
+      .addMatcher(isFulfilledAuthAction, state => {
+        state.status = 'success'
+      })
+      .addMatcher(isRejectedAuthAction, (state, action) => {
+        state.status = 'failure'
+        state.error = action.payload
+      })
   },
 })
 
