@@ -10,7 +10,7 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
 import {
   deleteTodolist,
-  Filter,
+  StatusFilter,
   selectTodolist,
   selectTodolistIsLoading,
   updateTodolistFilter,
@@ -31,7 +31,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
 
   const handleDeleteTodolist = () => dispatch(deleteTodolist(todoId))
 
-  const handleFilterChange = (filter: Filter) => () => {
+  const handleFilterChange = (filter: StatusFilter) => () => {
     if (todolist.filter === filter) return
 
     dispatch(updateTodolistFilter({ todoId, filter }))
@@ -47,7 +47,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
     [dispatch, todoId]
   )
 
-  const getButtonVariant = (filter: Filter) => {
+  const getButtonVariant = (filter: StatusFilter) => {
     return todolist.filter === filter ? 'contained' : 'outlined'
   }
 

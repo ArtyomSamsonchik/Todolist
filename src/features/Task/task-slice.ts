@@ -3,7 +3,12 @@ import { RootState, State } from '../../app/store'
 import { AnyAction, createSlice } from '@reduxjs/toolkit'
 import { Task, taskAPI, TaskStatus } from './task-api'
 import { fetchTasks } from './task-shared-actions'
-import { addTodolist, deleteTodolist, fetchTodolists, Filter } from '../Todolist/todolist-slice'
+import {
+  addTodolist,
+  deleteTodolist,
+  fetchTodolists,
+  StatusFilter,
+} from '../Todolist/todolist-slice'
 import { createSelector } from 'reselect'
 import { shallowEqual } from 'react-redux'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
@@ -181,7 +186,7 @@ export const selectTasks = (state: RootState, todoId: string) => state.tasks.ent
 export const filteredTasksSelectorFactory = () => {
   const selectFilteredTasks = createSelector(
     (state: RootState, todoId: string) => selectTasks(state, todoId),
-    (state: RootState, todoId: string, filter: Filter) => filter,
+    (state: RootState, todoId: string, filter: StatusFilter) => filter,
     (tasks, filter) => {
       if (filter === 'active') {
         return tasks.filter(t => t.status === TaskStatus.Uncompleted)

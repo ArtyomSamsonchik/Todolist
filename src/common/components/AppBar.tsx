@@ -1,23 +1,18 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import MuiAppBar from '@mui/material/AppBar'
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
-import { logout, selectIsLoggedIn } from '../../features/Auth/auth-slice'
+import { logout, selectAuthStatus, selectIsLoggedIn } from '../../features/Auth/auth-slice'
 import Button from '@mui/material/Button'
 import ProgressBar from './ProgressBar/ProgressBar'
 
 const AppBar = React.memo(() => {
-  const [buttonDisabled, setButtonDisabled] = useState(false)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
+  const authStatus = useAppSelector(selectAuthStatus)
   const dispatch = useAppDispatch()
 
-  const handleLogout = () => {
-    setButtonDisabled(true)
-    dispatch(logout()).then(() => {
-      setButtonDisabled(false)
-    })
-  }
+  const handleLogout = () => dispatch(logout())
 
   return (
     <MuiAppBar position="fixed">
@@ -26,7 +21,7 @@ const AppBar = React.memo(() => {
           <Button
             color="inherit"
             size="large"
-            disabled={buttonDisabled}
+            disabled={authStatus === 'pending'}
             sx={{ ml: { sx: 0, sm: 3 } }}
             onClick={handleLogout}
           >

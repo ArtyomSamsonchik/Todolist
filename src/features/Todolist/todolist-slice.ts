@@ -100,7 +100,7 @@ const todolistSlice = createSlice({
     pendingEntityId: null,
   } as State<TodolistDomain[]>,
   reducers: {
-    updateTodolistFilter(state, action: PayloadAction<{ todoId: string; filter: Filter }>) {
+    updateTodolistFilter(state, action: PayloadAction<{ todoId: string; filter: StatusFilter }>) {
       const { todoId, filter } = action.payload
       const index = state.entities.findIndex(tl => tl.id === todoId)
 
@@ -186,5 +186,5 @@ export const { updateTodolistFilter, resetTodolistsError } = todolistSlice.actio
 
 export default todolistSlice.reducer
 
-export type Filter = 'active' | 'completed' | 'all'
-export type TodolistDomain = Todolist & { filter: Filter }
+export type StatusFilter = 'active' | 'completed' | 'all'
+export type TodolistDomain = Todolist & { filter: StatusFilter }

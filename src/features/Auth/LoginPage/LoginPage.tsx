@@ -25,8 +25,8 @@ export type FormValues = {
 
 const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false)
-  const dispatch = useAppDispatch()
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
+  const dispatch = useAppDispatch()
 
   const toggleIsVisible = () => {
     setIsVisible(prevVisible => !prevVisible)
