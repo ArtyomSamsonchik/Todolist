@@ -157,7 +157,7 @@ const taskSlice = createSlice({
         state.entities[action.payload.id] = []
       })
       .addCase(deleteTodolist.fulfilled, (state, action) => {
-        delete state.entities[action.payload.todoId]
+        delete state.entities[action.payload]
       })
       .addCase(logout.fulfilled, state => {
         state.entities = {}

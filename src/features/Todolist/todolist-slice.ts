@@ -1,7 +1,5 @@
-import { RootState, State } from '../../app/store'
-import { createSelector } from 'reselect'
-import { shallowEqual } from 'react-redux'
-import { AnyAction, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { AdapterState, RootState } from '../../app/store'
+import { AnyAction, createEntityAdapter, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { Todolist, todolistAPI } from './todolist-api'
 import { createTodolistDomainEntity } from '../../utils/helpers/createTodolistDomainEntity'
 import {
@@ -65,7 +63,7 @@ export const deleteTodolist = createAppAsyncThunk(
     try {
       const { data } = await todolistAPI.deleteTodo(todoId)
 
-      if (data.resultCode === ResultCode.Ok) return { todoId }
+      if (data.resultCode === ResultCode.Ok) return todoId
 
       return rejectWithValue(data.messages[0] || basicErrorMessage)
     } catch (e) {
@@ -90,21 +88,28 @@ export const updateTodolistTitle = createAppAsyncThunk(
   }
 )
 
+const todolistsAdapter = createEntityAdapter<TodolistDomain>({
+  sortComparer: (a, b) => {
+    if (a.order > b.order) return 1
+    if (a.order === b.order) return 0
+
+    return -1
+  },
+})
+
 // slice
 const todolistSlice = createSlice({
   name: 'todolist',
-  initialState: {
-    entities: [],
-    status: 'idle',
+  initialState: todolistsAdapter.getInitialState<AdapterState>({
     error: null,
+    status: 'idle',
     pendingEntityId: null,
-  } as State<TodolistDomain[]>,
+  }),
   reducers: {
     updateTodolistFilter(state, action: PayloadAction<{ todoId: string; filter: StatusFilter }>) {
       const { todoId, filter } = action.payload
-      const index = state.entities.findIndex(tl => tl.id === todoId)
 
-      if (index !== -1) state.entities[index].filter = filter
+      todolistsAdapter.updateOne(state, { id: todoId, changes: { filter } })
     },
     resetTodolistsError(state) {
       state.error = null
@@ -113,38 +118,30 @@ const todolistSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(fetchTodolists.fulfilled, (state, action) => {
-        state.entities = action.payload.map(tl => createTodolistDomainEntity(tl))
+        const mappedEntities = action.payload.map(tl => createTodolistDomainEntity(tl))
+
+        todolistsAdapter.setMany(state, mappedEntities)
       })
       .addCase(addTodolist.fulfilled, (state, action) => {
         const newTodolist = createTodolistDomainEntity(action.payload)
 
-        state.entities.unshift(newTodolist)
+        todolistsAdapter.addOne(state, newTodolist)
       })
       .addCase(deleteTodolist.pending, (state, action) => {
         state.pendingEntityId = action.meta.arg
       })
-      .addCase(deleteTodolist.fulfilled, (state, action) => {
-        const { todoId } = action.payload
-        const index = state.entities.findIndex(tl => tl.id === todoId)
-
-        if (index !== -1) {
-          state.entities.splice(index, 1)
-        }
-      })
+      .addCase(deleteTodolist.fulfilled, todolistsAdapter.removeOne)
       .addCase(updateTodolistTitle.pending, (state, action) => {
         state.pendingEntityId = action.meta.arg.todoId
       })
       .addCase(updateTodolistTitle.fulfilled, (state, action) => {
         const { todoId, title } = action.payload
-        const index = state.entities.findIndex(tl => tl.id === todoId)
 
-        if (index !== -1) state.entities[index].title = title
+        todolistsAdapter.updateOne(state, { id: todoId, changes: { title } })
       })
 
       // shared actions
-      .addCase(logout.fulfilled, state => {
-        state.entities = []
-      })
+      .addCase(logout.fulfilled, todolistsAdapter.removeAll)
 
       // matchers for related actions
       .addMatcher(isPendingTodolistAction, state => {
@@ -162,24 +159,16 @@ const todolistSlice = createSlice({
 })
 
 // selectors
-export const selectAllTodolists = (state: RootState) => state.todolists.entities
+export const {
+  selectAll: selectAllTodolists,
+  selectById: selectTodolist,
+  selectIds: selectTodolistIds,
+} = todolistsAdapter.getSelectors<RootState>(state => state.todolists)
 
 export const selectTodolistsStatus = (state: RootState) => state.todolists.status
 export const selectTodolistsError = (state: RootState) => state.todolists.error
 export const selectTodolistIsLoading = (state: RootState, todoId: string) => {
   return state.todolists.status === 'pending' && state.todolists.pendingEntityId === todoId
-}
-
-export const selectTodolistIds = createSelector(
-  selectAllTodolists,
-  todolists => todolists.map(tl => tl.id),
-  {
-    memoizeOptions: { resultEqualityCheck: shallowEqual },
-  }
-)
-
-export const selectTodolist = (state: RootState, todoId: string) => {
-  return selectAllTodolists(state).find(tl => tl.id === todoId) as TodolistDomain
 }
 
 export const { updateTodolistFilter, resetTodolistsError } = todolistSlice.actions

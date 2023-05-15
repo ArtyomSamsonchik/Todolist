@@ -26,6 +26,12 @@ export type State<T = void> = {
   pendingEntityId: string | null
 }
 
+export type AdapterState = {
+  status: RequestStatus
+  error: string | null | undefined
+  pendingEntityId: string | null
+}
+
 if (process.env.NODE_ENV === 'development') {
   //@ts-ignore
   window.store = store

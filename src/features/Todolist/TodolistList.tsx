@@ -37,7 +37,7 @@ const TodolistList = React.memo(() => {
           <AddItemForm label="Add todolist" addItemCallback={handleAddTodolist} />
         </Grid>
         {todoIds.map(id => (
-          <Todolist key={id} todoId={id} />
+          <Todolist key={id} todoId={id as string} />
         ))}
       </Grid>
     </>

@@ -15,6 +15,7 @@ import {
   selectTodolistIsLoading,
   updateTodolistFilter,
   updateTodolistTitle,
+  TodolistDomain,
 } from './todolist-slice'
 import { addTask, filteredTasksSelectorFactory } from '../Task/task-slice'
 import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
@@ -24,7 +25,7 @@ import { LoadingBackdrop } from '../../common/components/LoadingBackdrop/Loading
 
 const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
-  const todolist = useAppSelector(state => selectTodolist(state, todoId))
+  const todolist = useAppSelector(state => selectTodolist(state, todoId)) as TodolistDomain
   const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
   const isLoading = useAppSelector(state => selectTodolistIsLoading(state, todoId))
   const dispatch = useAppDispatch()
