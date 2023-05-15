@@ -43,7 +43,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
 
       dispatch(updateTask(model))
     },
-    [dispatch, updateTask, taskId, todoId]
+    [dispatch, taskId, todoId]
   )
 
   return (

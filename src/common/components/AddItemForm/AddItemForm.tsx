@@ -3,7 +3,7 @@ import { Box, IconButton, SxProps, Theme } from '@mui/material'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import { shallowEqual } from 'react-redux'
 import { Formik, FormikConfig } from 'formik'
-import AddItemInput from './AddIteimInput'
+import AddItemInput from './AddItemInput'
 
 export type AddItemFormValues = { title: string }
 
