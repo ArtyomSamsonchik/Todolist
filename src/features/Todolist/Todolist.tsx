@@ -26,7 +26,8 @@ import { LoadingBackdrop } from '../../common/components/LoadingBackdrop/Loading
 const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
   const todolist = useAppSelector(state => selectTodolist(state, todoId)) as TodolistDomain
-  const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
+  const taskIds =
+    useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter)) || []
   const isLoading = useAppSelector(state => selectTodolistIsLoading(state, todoId))
   const dispatch = useAppDispatch()
 

@@ -11,7 +11,7 @@ import {
   PendingAction,
   RejectedAction,
 } from '../../app/app-async-thunk'
-import { fetchTasks } from '../Task/task-shared-actions'
+import { addTask, deleteTask, fetchTasks } from '../Task/task-slice'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { ResultCode } from '../../app/api-instance'
 import { basicErrorMessage } from '../../app/basic-error-message'
@@ -141,6 +141,28 @@ const todolistSlice = createSlice({
       })
 
       // shared actions
+      .addCase(fetchTasks.fulfilled, (state, action) => {
+        const { todoId, tasks } = action.payload
+        const todolist = state.entities[todoId]
+
+        if (todolist) todolist.tasksIds = tasks.map(t => t.id)
+      })
+      .addCase(addTask.fulfilled, (state, action) => {
+        const { todoId, task } = action.payload
+        const todolist = state.entities[todoId]
+
+        if (todolist) todolist.tasksIds.unshift(task.id)
+      })
+      .addCase(deleteTask.fulfilled, (state, action) => {
+        const { todoId, taskId } = action.payload
+        const todolist = state.entities[todoId]
+
+        if (!todolist) return
+
+        const index = todolist.tasksIds.findIndex(id => id === taskId)
+
+        if (index !== -1) todolist?.tasksIds.splice(index, 1)
+      })
       .addCase(logout.fulfilled, todolistsAdapter.removeAll)
 
       // matchers for related actions
@@ -176,4 +198,4 @@ export const { updateTodolistFilter, resetTodolistsError } = todolistSlice.actio
 export default todolistSlice.reducer
 
 export type StatusFilter = 'active' | 'completed' | 'all'
-export type TodolistDomain = Todolist & { filter: StatusFilter }
+export type TodolistDomain = Todolist & { filter: StatusFilter; tasksIds: string[] }

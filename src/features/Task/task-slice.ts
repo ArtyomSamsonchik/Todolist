@@ -1,14 +1,8 @@
 import { ResultCode } from '../../app/api-instance'
-import { RootState, State } from '../../app/store'
-import { AnyAction, createSlice } from '@reduxjs/toolkit'
+import { AdapterState, RootState } from '../../app/store'
+import { AnyAction, createEntityAdapter, createSlice } from '@reduxjs/toolkit'
 import { Task, taskAPI, TaskStatus } from './task-api'
-import { fetchTasks } from './task-shared-actions'
-import {
-  addTodolist,
-  deleteTodolist,
-  fetchTodolists,
-  StatusFilter,
-} from '../Todolist/todolist-slice'
+import { StatusFilter } from '../Todolist/todolist-slice'
 import { createSelector } from 'reselect'
 import { shallowEqual } from 'react-redux'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
@@ -23,6 +17,7 @@ import {
   PendingAction,
   RejectedAction,
 } from '../../app/app-async-thunk'
+import { selectTaskIdsByTodolist } from '../Todolist/todolist-shared-selectors'
 
 const isTaskAction = (action: AnyAction) => action.type.startsWith('task')
 const isPendingTaskAction = (action: AnyAction): action is PendingAction => {
@@ -36,6 +31,21 @@ const isRejectedTaskAction = (action: AnyAction): action is RejectedAction => {
 }
 
 // thunks
+export const fetchTasks = createAppAsyncThunk(
+  'tasks/fetchTasks',
+  async (todoId: string, { rejectWithValue }) => {
+    try {
+      const { data } = await taskAPI.getTasks(todoId)
+
+      if (!data.error) return { todoId, tasks: data.items }
+
+      return rejectWithValue(data.error || basicErrorMessage)
+    } catch (e) {
+      return rejectWithValue(getThunkErrorMessage(e as Error))
+    }
+  }
+)
+
 export const addTask = createAppAsyncThunk(
   'task/addTask',
   async (arg: { todoId: string; title: string }, { rejectWithValue }) => {
@@ -76,7 +86,7 @@ export const updateTask = createAppAsyncThunk(
   ) => {
     try {
       const { todoId, taskId, patch } = arg
-      const task = selectTask(getState(), todoId, taskId)
+      const task = selectTask(getState(), taskId) as Task
       const model: TaskModel = {
         description: task.description,
         title: task.title,
@@ -98,15 +108,16 @@ export const updateTask = createAppAsyncThunk(
   }
 )
 
+const tasksAdapter = createEntityAdapter<Task>()
+
 // slice
 const taskSlice = createSlice({
   name: 'task',
-  initialState: {
-    entities: {},
+  initialState: tasksAdapter.getInitialState<AdapterState>({
     status: 'idle',
     error: null,
     pendingEntityId: null,
-  } as State<TasksMap>,
+  }),
   reducers: {
     resetTasksError(state) {
       state.error = null
@@ -115,52 +126,35 @@ const taskSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(fetchTasks.fulfilled, (state, action) => {
-        const { todoId, tasks } = action.payload
+        const { tasks } = action.payload
 
-        state.entities[todoId] = tasks
+        tasksAdapter.setMany(state, tasks)
       })
       .addCase(addTask.fulfilled, (state, action) => {
-        const { todoId, task } = action.payload
+        const { task } = action.payload
 
-        state.entities[todoId].unshift(task)
+        tasksAdapter.addOne(state, task)
       })
       .addCase(deleteTask.pending, (state, action) => {
         state.pendingEntityId = action.meta.arg.taskId
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
-        const { todoId, taskId } = action.payload
-        const index = state.entities[todoId].findIndex(t => t.id === taskId)
+        const { taskId } = action.payload
 
-        if (index !== -1) {
-          state.entities[todoId].splice(index, 1)
-        }
+        tasksAdapter.removeOne(state, taskId)
       })
       .addCase(updateTask.pending, (state, action) => {
         state.pendingEntityId = action.meta.arg.taskId
       })
       .addCase(updateTask.fulfilled, (state, action) => {
-        const { id, todoListId } = action.payload
-        const index = state.entities[todoListId].findIndex(t => t.id === id)
+        const { id } = action.payload
 
-        if (index !== -1) {
-          state.entities[todoListId][index] = action.payload
-        }
+        tasksAdapter.updateOne(state, { id, changes: action.payload })
       })
 
       // shared actions
-      .addCase(fetchTodolists.fulfilled, (state, action) => {
-        action.payload.forEach(tl => {
-          state.entities[tl.id] = []
-        })
-      })
-      .addCase(addTodolist.fulfilled, (state, action) => {
-        state.entities[action.payload.id] = []
-      })
-      .addCase(deleteTodolist.fulfilled, (state, action) => {
-        delete state.entities[action.payload]
-      })
       .addCase(logout.fulfilled, state => {
-        state.entities = {}
+        tasksAdapter.removeAll(state)
       })
 
       // matchers for related actions
@@ -179,15 +173,32 @@ const taskSlice = createSlice({
 })
 
 // selectors
-export const selectTasks = (state: RootState, todoId: string) => state.tasks.entities[todoId]
+
+export const {
+  selectAll: selectAllTasks,
+  selectById: selectTask,
+  selectEntities: selectTaskEntities,
+  selectIds,
+} = tasksAdapter.getSelectors<RootState>(state => state.tasks)
 
 // Use this factory inside useMemo in Todolist component to provide every Todolist
 // instance his own selector.
 export const filteredTasksSelectorFactory = () => {
+  const selectTasksByTodolist = createSelector(
+    (state: RootState) => selectTaskEntities(state),
+    selectTaskIdsByTodolist,
+    (tasksDict, taskIds) => taskIds?.map(id => tasksDict[id] as Task),
+    {
+      memoizeOptions: { resultEqualityCheck: shallowEqual },
+    }
+  )
+
   const selectFilteredTasks = createSelector(
-    (state: RootState, todoId: string) => selectTasks(state, todoId),
+    selectTasksByTodolist,
     (state: RootState, todoId: string, filter: StatusFilter) => filter,
     (tasks, filter) => {
+      if (!tasks) return
+
       if (filter === 'active') {
         return tasks.filter(t => t.status === TaskStatus.Uncompleted)
       }
@@ -199,17 +210,17 @@ export const filteredTasksSelectorFactory = () => {
     }
   )
 
-  const selectFilteredTaskIds = createSelector(selectFilteredTasks, tasks => tasks.map(t => t.id), {
-    memoizeOptions: {
-      resultEqualityCheck: shallowEqual,
-    },
-  })
+  const selectFilteredTaskIds = createSelector(
+    selectFilteredTasks,
+    tasks => tasks?.map(t => t.id),
+    {
+      memoizeOptions: { resultEqualityCheck: shallowEqual },
+    }
+  )
 
-  return { selectFilteredTasks, selectFilteredTaskIds }
+  return { selectTasksByTodolist, selectFilteredTasks, selectFilteredTaskIds }
 }
-export const selectTask = (state: RootState, todoId: string, taskId: string) => {
-  return selectTasks(state, todoId).find(t => t.id === taskId) as Task
-}
+
 export const selectTasksStatus = (state: RootState) => state.tasks.status
 export const selectTasksError = (state: RootState) => state.tasks.error
 export const selectTaskIsLoading = (state: RootState, taskId: string) => {
@@ -221,4 +232,3 @@ export const { resetTasksError } = taskSlice.actions
 export default taskSlice.reducer
 
 export type TaskModel = Omit<Task, 'id' | 'todoListId' | 'order' | 'deadline'>
-export type TasksMap = Record<string, Task[]>

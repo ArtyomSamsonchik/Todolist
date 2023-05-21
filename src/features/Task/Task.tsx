@@ -16,7 +16,7 @@ type TaskProps = {
 }
 
 const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
-  const task = useAppSelector(state => selectTask(state, todoId, taskId))
+  const task = useAppSelector(state => selectTask(state, taskId))
   const isLoading = useAppSelector(state => selectTaskIsLoading(state, taskId))
   const dispatch = useAppDispatch()
 
@@ -45,6 +45,8 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
     },
     [dispatch, taskId, todoId]
   )
+
+  if (!task) return null
 
   return (
     <ListItem
