@@ -22,6 +22,7 @@ import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
 import EditableSpan from '../../common/components/EditableSpan'
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
 import { LoadingBackdrop } from '../../common/components/LoadingBackdrop/LoadingBackdrop'
+import { capitalize } from '@mui/material'
 
 const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
@@ -85,18 +86,15 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
                 },
               }}
             >
-              <Button variant={getButtonVariant('active')} onClick={handleFilterChange('active')}>
-                Active
-              </Button>
-              <Button
-                variant={getButtonVariant('completed')}
-                onClick={handleFilterChange('completed')}
-              >
-                Completed
-              </Button>
-              <Button variant={getButtonVariant('all')} onClick={handleFilterChange('all')}>
-                All
-              </Button>
+              {(['active', 'completed', 'all'] as StatusFilter[]).map(name => (
+                <Button
+                  key={name}
+                  variant={getButtonVariant(name)}
+                  onClick={handleFilterChange(name)}
+                >
+                  {capitalize(name)}
+                </Button>
+              ))}
             </ButtonGroup>
           </ListItem>
         </List>

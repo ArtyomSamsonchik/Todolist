@@ -24,24 +24,13 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
 
   const handleChangeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
     const status = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.Uncompleted
-    const model = {
-      todoId,
-      taskId,
-      patch: { status },
-    }
 
-    dispatch(updateTask(model))
+    dispatch(updateTask({ todoId, taskId, patch: { status } }))
   }
 
   const changeTaskTitle = useCallback(
     (title: string) => {
-      const model = {
-        todoId,
-        taskId,
-        patch: { title },
-      }
-
-      dispatch(updateTask(model))
+      dispatch(updateTask({ todoId, taskId, patch: { title } }))
     },
     [dispatch, taskId, todoId]
   )
