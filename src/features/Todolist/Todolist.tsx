@@ -19,7 +19,7 @@ import {
 } from './todolist-slice'
 import { addTask, filteredTasksSelectorFactory } from '../Task/task-slice'
 import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
-import EditableSpan from '../../common/components/EditableSpan'
+import EditableSpan from '../../common/components/EditableSpan/EditableSpan'
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
 import { LoadingBackdrop } from '../../common/components/LoadingBackdrop/LoadingBackdrop'
 import { capitalize } from '@mui/material'
