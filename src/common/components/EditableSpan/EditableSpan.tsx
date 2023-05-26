@@ -1,10 +1,11 @@
-import React, { ChangeEvent, FC, useState, KeyboardEvent, useRef, FocusEvent } from 'react'
+import React, { ChangeEvent, FC, useState, KeyboardEvent } from 'react'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import EditIcon from '@mui/icons-material/Edit'
 import IconButton from '@mui/material/IconButton'
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn'
 import EditableSpanInput from './EditableSpanInput'
 import { EditableSpanContainer } from './styled'
+import { Cancel } from '@mui/icons-material'
 
 type EditableSpanProps = {
   children: string
@@ -58,16 +59,6 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
     if (e.key === 'Escape') disableEditMode()
   }
 
-  const handleActionButtonClick = () => (editMode ? commitNewTitle() : activateEditMode())
-
-  const iconButtonRef = useRef<HTMLButtonElement>(null)
-
-  const handleBlur = (e: FocusEvent<HTMLInputElement>) => {
-    if (e.relatedTarget === iconButtonRef?.current) return
-
-    disableEditMode()
-  }
-
   return (
     <EditableSpanContainer>
       {editMode ? (
@@ -79,7 +70,6 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
           helperText={error || ''}
           onChange={handleChange}
           onKeyDown={handleKeydown}
-          onBlur={handleBlur}
         />
       ) : (
         <Typography
@@ -87,19 +77,24 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
           component="span"
           {...restProps}
           color={`text.${disabled ? 'disabled' : 'primary'}`}
-          // onDoubleClick={activateEditMode}
         >
           {children}
         </Typography>
       )}
-      <IconButton
-        ref={iconButtonRef}
-        sx={{ ml: 1 }}
-        disabled={disabled}
-        onClick={handleActionButtonClick}
-      >
-        {editMode ? <AssignmentTurnedInIcon /> : <EditIcon />}
-      </IconButton>
+      {editMode ? (
+        <>
+          <IconButton sx={{ ml: 1 }} disabled={disabled} onClick={disableEditMode}>
+            <Cancel />
+          </IconButton>
+          <IconButton disabled={disabled} onClick={commitNewTitle}>
+            <AssignmentTurnedInIcon />
+          </IconButton>
+        </>
+      ) : (
+        <IconButton sx={{ mx: 1 }} disabled={disabled} onClick={activateEditMode}>
+          <EditIcon />
+        </IconButton>
+      )}
     </EditableSpanContainer>
   )
 })
