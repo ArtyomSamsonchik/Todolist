@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useMemo } from 'react'
+import React, { FC, useCallback, useMemo, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import Paper from '@mui/material/Paper'
@@ -23,13 +23,16 @@ import EditableSpan from '../../common/components/EditableSpan/EditableSpan'
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
 import { LoadingBackdrop } from '../../common/components/LoadingBackdrop/LoadingBackdrop'
 import { capitalize } from '@mui/material'
+import ListItemText from '@mui/material/ListItemText'
 
 const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
   const todolist = useAppSelector(state => selectTodolist(state, todoId)) as TodolistDomain
   const taskIds =
     useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter)) || []
+
   const isLoading = useAppSelector(state => selectTodolistIsLoading(state, todoId))
+  const [isEditing, setIsEditing] = useState(false)
   const dispatch = useAppDispatch()
 
   const handleDeleteTodolist = () => dispatch(deleteTodolist(todoId))
@@ -58,14 +61,30 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
     <Grid item>
       <Paper elevation={3} sx={{ position: 'relative' }}>
         <LoadingBackdrop open={isLoading} />
-        <List>
-          <ListItem component="div">
-            <EditableSpan variant="h6" disabled={isLoading} changeTitle={changeTodolistTitle}>
-              {todolist.title}
-            </EditableSpan>
-            <IconButton onClick={handleDeleteTodolist} disabled={isLoading}>
-              <DeleteIcon />
-            </IconButton>
+        <List component="div">
+          <ListItem
+            component="div"
+            secondaryAction={
+              !isEditing && (
+                <IconButton onClick={handleDeleteTodolist} disabled={isLoading}>
+                  <DeleteIcon />
+                </IconButton>
+              )
+            }
+          >
+            <ListItemText
+              disableTypography
+              primary={
+                <EditableSpan
+                  variant="h6"
+                  disabled={isLoading}
+                  changeTitle={changeTodolistTitle}
+                  onToggleEditMode={setIsEditing}
+                >
+                  {todolist.title}
+                </EditableSpan>
+              }
+            />
           </ListItem>
           <ListItem component="div">
             <AddItemForm
@@ -74,9 +93,11 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
               addItemCallback={handleAddTaskClick}
             />
           </ListItem>
-          {taskIds.map(id => (
-            <Task key={id} todoId={todoId} taskId={id} />
-          ))}
+          <ul>
+            {taskIds.map(id => (
+              <Task key={id} todoId={todoId} taskId={id} />
+            ))}
+          </ul>
           <ListItem component="div">
             <ButtonGroup
               sx={{

@@ -42,7 +42,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
   return (
     <ListItem
       secondaryAction={
-        isEditing ? null : (
+        !isEditing && (
           <IconButton disabled={isLoading} onClick={handleDeleteTask}>
             <DeleteIcon />
           </IconButton>
