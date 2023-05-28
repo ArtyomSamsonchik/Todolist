@@ -3,6 +3,7 @@ import { Box, IconButton, SxProps, Theme } from '@mui/material'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import { Formik, FormikConfig } from 'formik'
 import AddItemInput from './AddItemInput'
+import { stringify } from 'querystring'
 
 export type AddItemFormValues = { title: string }
 
@@ -10,30 +11,33 @@ type AddItemFormProps = {
   sx?: SxProps<Theme>
   label?: string
   disabled?: boolean
-  addItemCallback: (title: string) => Promise<any>
+  addItemCallback: (title: string) => Promise<any> | void
 }
 
 const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
   const { sx, addItemCallback, label, disabled } = props
 
-  const validate = ({ title }: AddItemFormValues) => {
-    const errors: { title?: string } = {}
-    if (!title.trim()) errors.title = 'Title should not be empty'
-    return errors
-  }
-
   const onSubmit: FormikConfig<AddItemFormValues>['onSubmit'] = async (
     { title },
-    { resetForm }
+    { resetForm, setErrors }
   ) => {
-    await addItemCallback(title)
-    resetForm()
+    try {
+      await addItemCallback(title)
+      resetForm()
+    } catch (e) {
+      let message: string
+
+      if (e instanceof Error) message = e.name
+      else if (typeof e === 'string') message = e
+      else message = 'some error occurred'
+
+      setErrors({ title: message })
+    }
   }
 
   return (
     <Formik
       initialValues={{ title: '' } as AddItemFormValues}
-      validate={validate}
       validateOnChange={false}
       validateOnBlur={false}
       onSubmit={onSubmit}

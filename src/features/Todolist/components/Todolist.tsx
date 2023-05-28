@@ -51,7 +51,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   )
 
   const handleAddTaskClick = useCallback(
-    (title: string) => dispatch(addTask({ todoId, title })),
+    (title: string) => dispatch(addTask({ todoId, title })).unwrap(),
     [dispatch, todoId]
   )
 

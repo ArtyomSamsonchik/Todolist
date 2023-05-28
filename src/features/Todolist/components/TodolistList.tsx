@@ -21,9 +21,7 @@ const TodolistList = React.memo(() => {
   }, [dispatch, isLoggedIn])
 
   const handleAddTodolist = useCallback(
-    (title: string) => {
-      return dispatch(addTodolist(title))
-    },
+    (title: string) => dispatch(addTodolist(title)).unwrap(),
     [dispatch]
   )
 
