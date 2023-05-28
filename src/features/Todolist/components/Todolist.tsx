@@ -22,8 +22,10 @@ import AddItemForm from '../../../common/components/AddItemForm/AddItemForm'
 import EditableSpan from '../../../common/components/EditableSpan/EditableSpan'
 import { useAppDispatch, useAppSelector } from '../../../utils/hooks/hooks'
 import { LoadingBackdrop } from '../../../common/components/LoadingBackdrop/LoadingBackdrop'
-import { capitalize } from '@mui/material'
+import { capitalize, SxProps } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
+
+const addItemFormSxProps: SxProps = { width: 0.95 }
 
 const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
@@ -91,7 +93,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
             <AddItemForm
               label="Add todo item"
               addItemCallback={handleAddTaskClick}
-              sx={{ width: 0.95 }}
+              sx={addItemFormSxProps}
             />
           </ListItem>
           <ul>
