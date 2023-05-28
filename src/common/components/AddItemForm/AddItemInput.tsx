@@ -1,46 +1,32 @@
-import React, { ChangeEvent, FC, KeyboardEvent } from 'react'
-import { SxProps, TextField, Theme } from '@mui/material'
-import { FormikHandlers, FormikHelpers, useFormikContext } from 'formik'
-import { AddItemFormValues } from './AddItemForm'
+import { ChangeEvent, FC } from 'react'
+import TextField from '@mui/material/TextField'
+import { useField } from 'formik'
 
 type AddItemInputProps = {
-  sx?: SxProps<Theme>
+  isSubmitting: boolean
   label?: string
   disabled?: boolean
 }
 
 const AddItemInput: FC<AddItemInputProps> = props => {
-  const { sx, label, disabled } = props
-  const { errors, values, isSubmitting, handleSubmit, handleChange, setErrors } =
-    useFormikContext<AddItemFormValues>()
+  const { label, disabled, isSubmitting } = props
 
-  const handleInputChange =
-    (
-      setErrors: FormikHelpers<AddItemFormValues>['setErrors'],
-      handleChange: FormikHandlers['handleChange']
-    ) =>
-    (e: ChangeEvent<HTMLInputElement>) => {
-      setErrors({})
-      handleChange(e)
-    }
+  const [{ value }, { error }, { setError, setValue }] = useField<string>('title')
 
-  const handleKeydown = (handleSubmit: FormikHandlers['handleSubmit']) => {
-    return (e: KeyboardEvent) => {
-      if (e.key === 'Enter') handleSubmit()
-    }
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (error) setError(undefined)
+    setValue(e.currentTarget.value)
   }
 
   return (
     <TextField
       variant="outlined"
-      sx={{ width: '300px', ...sx }}
-      error={!!errors.title}
-      label={errors.title ? errors.title : label}
+      error={!!error}
+      label={error ? error : label}
       disabled={isSubmitting || disabled}
-      name="title"
-      value={values.title}
-      onChange={handleInputChange(setErrors, handleChange)}
-      onKeyDown={handleKeydown(handleSubmit)}
+      value={value}
+      onChange={handleInputChange}
+      sx={{ width: 1 }}
     />
   )
 }

@@ -2,7 +2,7 @@ import React, { FC, useCallback, useMemo, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import Paper from '@mui/material/Paper'
-import Task from '../Task/Task'
+import Task from '../../Task/Task'
 import ListItem from '@mui/material/ListItem'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
@@ -16,12 +16,12 @@ import {
   updateTodolistFilter,
   updateTodolistTitle,
   TodolistDomain,
-} from './todolist-slice'
-import { addTask, filteredTasksSelectorFactory } from '../Task/task-slice'
-import AddItemForm from '../../common/components/AddItemForm/AddItemForm'
-import EditableSpan from '../../common/components/EditableSpan/EditableSpan'
-import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
-import { LoadingBackdrop } from '../../common/components/LoadingBackdrop/LoadingBackdrop'
+} from '../todolist-slice'
+import { addTask, filteredTasksSelectorFactory } from '../../Task/task-slice'
+import AddItemForm from '../../../common/components/AddItemForm/AddItemForm'
+import EditableSpan from '../../../common/components/EditableSpan/EditableSpan'
+import { useAppDispatch, useAppSelector } from '../../../utils/hooks/hooks'
+import { LoadingBackdrop } from '../../../common/components/LoadingBackdrop/LoadingBackdrop'
 import { capitalize } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 
@@ -58,7 +58,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   }
 
   return (
-    <Grid item>
+    <Grid item width={1} maxWidth={400}>
       <Paper elevation={3} sx={{ position: 'relative' }}>
         <LoadingBackdrop open={isLoading} />
         <List component="div">
@@ -73,6 +73,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
             }
           >
             <ListItemText
+              sx={{ pl: 1.5 }}
               disableTypography
               primary={
                 <EditableSpan
@@ -86,11 +87,11 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
               }
             />
           </ListItem>
-          <ListItem component="div">
+          <ListItem component="div" sx={{ justifyContent: 'center' }}>
             <AddItemForm
-              sx={{ width: 'auto' }}
               label="Add todo item"
               addItemCallback={handleAddTaskClick}
+              sx={{ width: 0.95 }}
             />
           </ListItem>
           <ul>
@@ -107,13 +108,13 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
                 },
               }}
             >
-              {(['active', 'completed', 'all'] as StatusFilter[]).map(name => (
+              {(['active', 'completed', 'all'] as StatusFilter[]).map(filter => (
                 <Button
-                  key={name}
-                  variant={getButtonVariant(name)}
-                  onClick={handleFilterChange(name)}
+                  key={filter}
+                  variant={getButtonVariant(filter)}
+                  onClick={handleFilterChange(filter)}
                 >
-                  {capitalize(name)}
+                  {capitalize(filter)}
                 </Button>
               ))}
             </ButtonGroup>

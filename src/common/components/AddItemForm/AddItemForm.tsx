@@ -54,12 +54,14 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
             justifyContent="center"
             alignItems="center"
             onSubmit={handleSubmit}
+            sx={{ pl: 1, ...sx }}
           >
-            <AddItemInput sx={sx} label={label} disabled={isSubmitting || disabled} />
+            <AddItemInput label={label} disabled={disabled} isSubmitting={isSubmitting} />
             <IconButton
               type="submit"
               disabled={isSubmitting || !isValid || disabled}
               color="primary"
+              sx={{ ml: 1 }}
             >
               <AddBoxIcon />
             </IconButton>
@@ -73,4 +75,3 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
 export default AddItemForm
 
 // TODO: remove complex shallowEqual logic. Use useMemo on parent component instead
-// TODO: refactor AddItemInput to use useForm instead of useFormikContext
