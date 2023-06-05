@@ -7,7 +7,7 @@ import store from './app/store'
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 import TodolistList from './features/Todolist/components/TodolistList'
 import LoginPage from './features/Auth/LoginPage/LoginPage'
-import PATH from './app/path'
+import { PATH } from './app/constants'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 

@@ -15,7 +15,7 @@ import { validateLogin } from '../../../utils/helpers/validateLogin'
 import LoginFormInput from './LoginFormInput/LoginFormInput'
 import FormLabel from '@mui/material/FormLabel'
 import Typography from '@mui/material/Typography'
-import PATH from '../../../app/path'
+import { PATH } from '../../../app/constants'
 
 export type FormValues = {
   email: string
