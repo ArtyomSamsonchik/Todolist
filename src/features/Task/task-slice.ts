@@ -6,7 +6,6 @@ import { StatusFilter } from '../Todolist/todolist-slice'
 import { createSelector } from 'reselect'
 import { shallowEqual } from 'react-redux'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
-import { basicErrorMessage } from '../../app/basic-error-message'
 import { logout } from '../Auth/auth-slice'
 import {
   createAppAsyncThunk,
@@ -18,6 +17,7 @@ import {
   RejectedAction,
 } from '../../app/app-async-thunk'
 import { selectTaskIdsByTodolist } from '../Todolist/todolist-shared-selectors'
+import { createAppError } from '../../utils/helpers/createAppError'
 
 const isTaskAction = (action: AnyAction) => action.type.startsWith('task')
 const isPendingTaskAction = (action: AnyAction): action is PendingAction => {
@@ -39,9 +39,11 @@ export const fetchTasks = createAppAsyncThunk(
 
       if (!data.error) return { todoId, tasks: data.items }
 
-      return rejectWithValue(data.error || basicErrorMessage)
+      return rejectWithValue(createAppError(data.error))
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )
@@ -55,9 +57,13 @@ export const addTask = createAppAsyncThunk(
 
       if (data.resultCode === ResultCode.Ok) return { todoId, task: data.data.item }
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
+      return rejectWithValue(
+        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
+      )
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )
@@ -71,9 +77,11 @@ export const deleteTask = createAppAsyncThunk(
 
       if (data.resultCode === ResultCode.Ok) return { todoId, taskId }
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
+      return rejectWithValue(createAppError(data.messages[0]))
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )
@@ -101,9 +109,13 @@ export const updateTask = createAppAsyncThunk(
 
       if (data.resultCode === ResultCode.Ok) return data.data.item
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
+      return rejectWithValue(
+        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
+      )
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )

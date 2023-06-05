@@ -14,8 +14,8 @@ import {
 import { addTask, deleteTask, fetchTasks } from '../Task/task-slice'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { ResultCode } from '../../app/api-instance'
-import { basicErrorMessage } from '../../app/basic-error-message'
 import { logout } from '../Auth/auth-slice'
+import { createAppError } from '../../utils/helpers/createAppError'
 
 const isTodolistAction = (action: AnyAction) => action.type.startsWith('todolist')
 const isPendingTodolistAction = (action: AnyAction): action is PendingAction => {
@@ -39,7 +39,9 @@ export const fetchTodolists = createAppAsyncThunk(
 
       return todolists
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )
@@ -51,9 +53,13 @@ export const addTodolist = createAppAsyncThunk(
 
       if (data.resultCode === ResultCode.Ok) return data.data.item
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
+      return rejectWithValue(
+        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
+      )
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )
@@ -65,9 +71,11 @@ export const deleteTodolist = createAppAsyncThunk(
 
       if (data.resultCode === ResultCode.Ok) return todoId
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
+      return rejectWithValue(createAppError(data.messages[0]))
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )
@@ -81,9 +89,13 @@ export const updateTodolistTitle = createAppAsyncThunk(
 
       if (data.resultCode === ResultCode.Ok) return { todoId, title }
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
+      return rejectWithValue(
+        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
+      )
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )

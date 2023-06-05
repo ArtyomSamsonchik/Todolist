@@ -3,7 +3,7 @@ import { Box, IconButton, SxProps, Theme } from '@mui/material'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import { Formik, FormikConfig } from 'formik'
 import AddItemInput from './AddItemInput'
-import { stringify } from 'querystring'
+import { BASIC_ERROR_MESSAGE } from '../../../app/constants'
 
 export type AddItemFormValues = { title: string }
 
@@ -27,9 +27,9 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
     } catch (e) {
       let message: string
 
-      if (e instanceof Error) message = e.name
+      if (e instanceof Error) message = e.message
       else if (typeof e === 'string') message = e
-      else message = 'some error occurred'
+      else message = BASIC_ERROR_MESSAGE
 
       setErrors({ title: message })
     }

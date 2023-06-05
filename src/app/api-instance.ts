@@ -11,6 +11,7 @@ export const instance = axios.create({
 export type ApiResponse<T = {}> = {
   resultCode: ResultCode
   messages: string[]
+  fieldsErrors?: string[]
   data: T
 }
 

@@ -17,20 +17,16 @@ export default store
 
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch
-
-export type RequestStatus = 'idle' | 'pending' | 'success' | 'failure'
-export type State<T = void> = {
-  status: RequestStatus
-  error: string | null | undefined
-  entities: T
-  pendingEntityId: string | null
-}
-
 export type AdapterState = {
   status: RequestStatus
-  error: string | null | undefined
+  error: AppError | null | undefined
   pendingEntityId: string | null
 }
+export type AppError = {
+  scope: 'validation' | 'global'
+  message: string
+}
+export type RequestStatus = 'idle' | 'pending' | 'success' | 'failure'
 
 if (process.env.NODE_ENV === 'development') {
   //@ts-ignore

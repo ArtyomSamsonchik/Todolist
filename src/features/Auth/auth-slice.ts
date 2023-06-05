@@ -1,10 +1,9 @@
-import { RootState, State } from '../../app/store'
+import { RootState, AdapterState } from '../../app/store'
 import { ResultCode } from '../../app/api-instance'
 import { AnyAction, createSlice } from '@reduxjs/toolkit'
 import { authAPI, LoginData } from './auth-api'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
 import { authMe } from './auth-shared-actions'
-import { basicErrorMessage } from '../../app/basic-error-message'
 import {
   createAppAsyncThunk,
   FulfilledAction,
@@ -14,6 +13,7 @@ import {
   PendingAction,
   RejectedAction,
 } from '../../app/app-async-thunk'
+import { createAppError } from '../../utils/helpers/createAppError'
 
 const isAuthAction = (action: AnyAction) => action.type.startsWith('auth')
 const isPendingAuthAction = (action: AnyAction): action is PendingAction => {
@@ -35,9 +35,11 @@ export const login = createAppAsyncThunk(
 
       if (data.resultCode === ResultCode.Ok) return { userId: data.data.userId }
 
-      return rejectWithValue(data.messages[0] || basicErrorMessage)
+      return rejectWithValue(createAppError(data.messages[0]))
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     }
   }
 )
@@ -48,13 +50,15 @@ export const logout = createAppAsyncThunk('auth/logout', async (_, { rejectWithV
 
     if (data.resultCode === ResultCode.Ok) return
 
-    return rejectWithValue(data.messages[0] || basicErrorMessage)
+    return rejectWithValue(createAppError(data.messages[0]))
   } catch (e) {
-    return rejectWithValue(getThunkErrorMessage(e as Error))
+    const message = getThunkErrorMessage(e as Error)
+
+    return rejectWithValue(createAppError(message))
   }
 })
 
-const initialState: Pick<State, 'error' | 'status'> & { isLoggedIn: boolean } = {
+const initialState: Pick<AdapterState, 'error' | 'status'> & { isLoggedIn: boolean } = {
   status: 'idle',
   error: null,
   isLoggedIn: false,

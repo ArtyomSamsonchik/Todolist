@@ -1,10 +1,10 @@
 import { AnyAction, AsyncThunk, createAsyncThunk } from '@reduxjs/toolkit'
-import { AppDispatch, RootState } from './store'
+import { AppDispatch, AppError, RootState } from './store'
 
 export type AppAsyncThunkConfig = {
   state: RootState
   dispatch: AppDispatch
-  rejectValue: string
+  rejectValue: AppError
 }
 
 type GenericAsyncThunk = AsyncThunk<unknown, unknown, AppAsyncThunkConfig>

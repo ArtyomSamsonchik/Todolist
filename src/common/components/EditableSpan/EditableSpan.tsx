@@ -6,6 +6,7 @@ import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn'
 import EditableSpanInput from './EditableSpanInput'
 import { EditableSpanContainer } from './styled'
 import { Cancel } from '@mui/icons-material'
+import { BASIC_ERROR_MESSAGE } from '../../../app/constants'
 
 type EditableSpanProps = {
   children: string
@@ -41,9 +42,9 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
     } catch (e) {
       let message: string
 
-      if (e instanceof Error) message = e.name
+      if (e instanceof Error) message = e.message
       else if (typeof e === 'string') message = e
-      else message = 'Some error occurred'
+      else message = BASIC_ERROR_MESSAGE
 
       setError(message)
     }

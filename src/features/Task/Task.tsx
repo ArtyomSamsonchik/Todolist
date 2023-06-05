@@ -31,8 +31,14 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
   }
 
   const changeTaskTitle = useCallback(
-    (title: string) => {
-      return dispatch(updateTask({ todoId, taskId, patch: { title } })).unwrap()
+    async (title: string) => {
+      const resultAction = await dispatch(updateTask({ todoId, taskId, patch: { title } }))
+
+      if (updateTask.rejected.match(resultAction)) {
+        const appError = resultAction.payload
+
+        if (appError?.scope === 'validation') throw new Error(appError.message)
+      }
     },
     [dispatch, taskId, todoId]
   )

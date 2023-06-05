@@ -19,20 +19,21 @@ const ErrorSnackbar = React.memo(() => {
   const authError = useAppSelector(selectAuthError)
   const dispatch = useAppDispatch()
 
-  const snackbarError = todolistError || tasksError || authError
-
   const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
+    // cSpell: disable-next-line
     if (reason === 'clickaway') return
 
-    dispatch(resetTodolistsError())
-    dispatch(resetTasksError())
-    dispatch(resetAuthError())
+    if (todolistError) dispatch(resetTodolistsError())
+    if (tasksError) dispatch(resetTasksError())
+    if (authError) dispatch(resetAuthError())
   }
 
-  if (snackbarError) message = snackbarError
+  const reducerError = todolistError || tasksError || authError
+
+  if (reducerError) message = reducerError.message
 
   return (
-    <Snackbar open={!!snackbarError} autoHideDuration={6000} onClose={handleClose}>
+    <Snackbar open={reducerError?.scope === 'global'} autoHideDuration={6000} onClose={handleClose}>
       <Alert elevation={6} variant="filled" severity="error" onClose={handleClose}>
         {message}
       </Alert>

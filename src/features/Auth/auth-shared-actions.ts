@@ -3,7 +3,7 @@ import { authAPI } from './auth-api'
 import { ResultCode } from '../../app/api-instance'
 import { initApp, selectIsInit } from '../../app/app-slice'
 import { getThunkErrorMessage } from '../../utils/helpers/getThunkErrorMessage'
-import { basicErrorMessage } from '../../app/basic-error-message'
+import { createAppError } from '../../utils/helpers/createAppError'
 
 export const authMe = createAppAsyncThunk(
   'auth/me',
@@ -19,9 +19,11 @@ export const authMe = createAppAsyncThunk(
 
       if (notAuthorizedOnFirstLoad) return { isAuthorized: false }
 
-      return rejectWithValue(errorMessage || basicErrorMessage)
+      return rejectWithValue(createAppError(errorMessage))
     } catch (e) {
-      return rejectWithValue(getThunkErrorMessage(e as Error))
+      const message = getThunkErrorMessage(e as Error)
+
+      return rejectWithValue(createAppError(message))
     } finally {
       dispatch(initApp())
     }

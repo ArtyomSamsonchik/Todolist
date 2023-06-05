@@ -51,7 +51,15 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   )
 
   const handleAddTaskClick = useCallback(
-    (title: string) => dispatch(addTask({ todoId, title })).unwrap(),
+    async (title: string) => {
+      const resultAction = await dispatch(addTask({ todoId, title }))
+
+      if (addTask.rejected.match(resultAction)) {
+        const appError = resultAction.payload
+
+        if (appError?.scope === 'validation') throw new Error(appError.message)
+      }
+    },
     [dispatch, todoId]
   )
 
