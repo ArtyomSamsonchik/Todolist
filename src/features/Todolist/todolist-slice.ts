@@ -31,7 +31,11 @@ const isRejectedTodolistAction = (action: AnyAction): action is RejectedAction =
 // thunks
 export const fetchTodolists = createAppAsyncThunk(
   'todolist/fetchTodolists',
-  async (_, { dispatch, rejectWithValue }) => {
+  async (_, { dispatch, rejectWithValue, getState, requestId }) => {
+    const { status, requestId: currentRequestId } = getState().todolists
+
+    if (status !== 'pending' || currentRequestId !== requestId) return
+
     try {
       const { data: todolists } = await todolistAPI.getTodos()
 
@@ -112,10 +116,11 @@ const todolistsAdapter = createEntityAdapter<TodolistDomain>({
 // slice
 const todolistSlice = createSlice({
   name: 'todolist',
-  initialState: todolistsAdapter.getInitialState<AdapterState>({
+  initialState: todolistsAdapter.getInitialState<AdapterState & { requestId: string | null }>({
     error: null,
     status: 'idle',
     pendingEntityId: null,
+    requestId: null,
   }),
   reducers: {
     updateTodolistFilter(state, action: PayloadAction<{ todoId: string; filter: StatusFilter }>) {
@@ -129,10 +134,12 @@ const todolistSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchTodolists.fulfilled, (state, action) => {
-        const mappedEntities = action.payload.map(tl => createTodolistDomainEntity(tl))
+      .addCase(fetchTodolists.fulfilled, (state, { payload, meta }) => {
+        if (state.status === 'pending' && state.requestId === meta.requestId) {
+          const mappedEntities = (payload ?? []).map(tl => createTodolistDomainEntity(tl))
 
-        todolistsAdapter.setMany(state, mappedEntities)
+          todolistsAdapter.setMany(state, mappedEntities)
+        }
       })
       .addCase(addTodolist.fulfilled, (state, action) => {
         const newTodolist = createTodolistDomainEntity(action.payload)
@@ -178,16 +185,26 @@ const todolistSlice = createSlice({
       .addCase(logout.fulfilled, todolistsAdapter.removeAll)
 
       // matchers for related actions
-      .addMatcher(isPendingTodolistAction, state => {
-        state.status = 'pending'
+      .addMatcher(isPendingTodolistAction, (state, action) => {
+        if (state.status !== 'pending') {
+          state.status = 'pending'
+          state.requestId = action.meta.requestId
+        }
       })
       .addMatcher(isFulfilledTodolistAction, (state, { meta }) => {
-        state.status = 'success'
-        state.pendingEntityId = null
+        if (state.status === 'pending' && state.requestId === meta.requestId) {
+          state.status = 'success'
+          state.requestId = null
+          state.pendingEntityId = null
+        }
       })
-      .addMatcher(isRejectedTodolistAction, (state, action) => {
-        state.status = 'failure'
-        state.error = action.payload
+      .addMatcher(isRejectedTodolistAction, (state, { meta, payload }) => {
+        if (state.status === 'pending' && state.requestId === meta.requestId) {
+          state.status = 'failure'
+          state.error = payload
+          state.requestId = null
+          state.pendingEntityId = null
+        }
       })
   },
 })
