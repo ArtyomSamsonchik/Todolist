@@ -76,6 +76,7 @@ const authSlice = createSlice({
   extraReducers: builder => {
     builder
       .addCase(login.fulfilled, state => {
+        // TODO: add initLoading state prop to remove 'not auth' error on init
         state.isLoggedIn = true
         state.status = 'success'
       })

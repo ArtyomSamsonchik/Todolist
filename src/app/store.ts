@@ -1,6 +1,5 @@
 import todolistReducer from '../features/Todolist/todolist-slice'
 import taskReducer from '../features/Task/task-slice'
-import appReducer from './app-slice'
 import authReducer from '../features/Auth/auth-slice'
 import { configureStore } from '@reduxjs/toolkit'
 
@@ -8,7 +7,6 @@ const store = configureStore({
   reducer: {
     todolists: todolistReducer,
     tasks: taskReducer,
-    app: appReducer,
     auth: authReducer,
   },
 })

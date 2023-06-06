@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import CssBaseline from '@mui/material/CssBaseline'
 import { Outlet } from 'react-router-dom'
 import AppBar from '../common/components/AppBar'
@@ -6,16 +6,15 @@ import Backdrop from '@mui/material/Backdrop'
 import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import ErrorSnackbar from '../common/components/ErrorSnackbar/ErrorSnackbar'
-import { useAppDispatch, useAppSelector } from '../utils/hooks/hooks'
-import { selectIsInit } from './app-slice'
+import { useAppDispatch } from '../utils/hooks/hooks'
 import { authMe } from '../features/Auth/auth-shared-actions'
 
 const App = () => {
-  const isInitialized = useAppSelector(selectIsInit)
+  const [isInitialized, setIsInitialized] = useState(false)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
-    dispatch(authMe())
+      dispatch(authMe()).then(() => setIsInitialized(true))
   }, [dispatch])
 
   return (
