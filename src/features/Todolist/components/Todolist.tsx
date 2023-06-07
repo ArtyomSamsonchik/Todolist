@@ -30,8 +30,7 @@ const addItemFormSxProps: SxProps = { width: 0.95 }
 const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
   const todolist = useAppSelector(state => selectTodolist(state, todoId)) as TodolistDomain
-  const taskIds =
-    useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter)) || []
+  const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
 
   const isLoading = useAppSelector(state => selectTodolistIsLoading(state, todoId))
   const [isEditing, setIsEditing] = useState(false)
@@ -67,10 +66,12 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
     return todolist.filter === filter ? 'contained' : 'outlined'
   }
 
+  // TODO: fix gap between 'cancel' and 'commit' buttons in editing mode set to 'on'
+
   return (
     <Grid item width={1} maxWidth={400}>
       <Paper elevation={3} sx={{ position: 'relative' }}>
-        <LoadingBackdrop open={isLoading} />
+        <LoadingBackdrop open={isLoading || todolist.tasksIds === null} />
         <List component="div">
           <ListItem
             component="div"

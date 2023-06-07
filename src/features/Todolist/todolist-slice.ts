@@ -39,8 +39,6 @@ export const fetchTodolists = createAppAsyncThunk(
     try {
       const { data: todolists } = await todolistAPI.getTodos()
 
-      todolists.forEach(tl => dispatch(fetchTasks(tl.id)))
-
       return todolists
     } catch (e) {
       const message = getThunkErrorMessage(e as Error)
@@ -160,23 +158,35 @@ const todolistSlice = createSlice({
       })
 
       // shared actions
-      .addCase(fetchTasks.fulfilled, (state, action) => {
-        const { todoId, tasks } = action.payload
-        const todolist = state.entities[todoId]
+      .addCase(fetchTasks.pending, (state, { meta }) => {
+        if (state.status !== 'pending') {
+          state.status = 'pending'
+          state.pendingEntityId = meta.arg
+        }
+      })
+      .addCase(fetchTasks.fulfilled, (state, { payload, meta }) => {
+        if (state.status === 'pending' && payload) {
+          const { todoId, tasks } = payload
+          const todolist = state.entities[todoId]
 
-        if (todolist) todolist.tasksIds = tasks.map(t => t.id)
+          if (todolist) {
+            todolist.tasksIds = tasks.map(t => t.id)
+            state.status = 'success'
+            state.pendingEntityId = null
+          }
+        }
       })
       .addCase(addTask.fulfilled, (state, action) => {
         const { todoId, task } = action.payload
         const todolist = state.entities[todoId]
 
-        if (todolist) todolist.tasksIds.unshift(task.id)
+        if (todolist?.tasksIds) todolist.tasksIds.unshift(task.id)
       })
       .addCase(deleteTask.fulfilled, (state, action) => {
         const { todoId, taskId } = action.payload
         const todolist = state.entities[todoId]
 
-        if (!todolist) return
+        if (!todolist?.tasksIds) return
 
         const index = todolist.tasksIds.findIndex(id => id === taskId)
 
@@ -185,10 +195,10 @@ const todolistSlice = createSlice({
       .addCase(logout.fulfilled, todolistsAdapter.removeAll)
 
       // matchers for related actions
-      .addMatcher(isPendingTodolistAction, (state, action) => {
+      .addMatcher(isPendingTodolistAction, (state, { meta }) => {
         if (state.status !== 'pending') {
           state.status = 'pending'
-          state.requestId = action.meta.requestId
+          state.requestId = meta.requestId
         }
       })
       .addMatcher(isFulfilledTodolistAction, (state, { meta }) => {
@@ -225,6 +235,5 @@ export const selectTodolistIsLoading = (state: RootState, todoId: string) => {
 export const { updateTodolistFilter, resetTodolistsError } = todolistSlice.actions
 
 export default todolistSlice.reducer
-
 export type StatusFilter = 'active' | 'completed' | 'all'
-export type TodolistDomain = Todolist & { filter: StatusFilter; tasksIds: string[] }
+export type TodolistDomain = Todolist & { filter: StatusFilter; tasksIds: string[] | null }

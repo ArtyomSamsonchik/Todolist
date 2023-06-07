@@ -8,6 +8,7 @@ import AddItemForm from '../../../common/components/AddItemForm/AddItemForm'
 import { useAppSelector, useAppDispatch } from '../../../utils/hooks/hooks'
 import { selectIsLoggedIn } from '../../Auth/auth-slice'
 import { selectTodolistIds, fetchTodolists, addTodolist } from '../todolist-slice'
+import { fetchTasks } from '../../Task/task-slice'
 
 const TodolistList = React.memo(() => {
   const todoIds = useAppSelector(selectTodolistIds)
@@ -16,7 +17,17 @@ const TodolistList = React.memo(() => {
 
   useEffect(() => {
     if (isLoggedIn) {
-      dispatch(fetchTodolists())
+      const loadTodolistsData = async () => {
+        const todolists = await dispatch(fetchTodolists()).unwrap()
+
+        if (todolists) {
+          for (let { id } of todolists) {
+            await dispatch(fetchTasks(id))
+          }
+        }
+      }
+
+      loadTodolistsData()
     }
   }, [dispatch, isLoggedIn])
 

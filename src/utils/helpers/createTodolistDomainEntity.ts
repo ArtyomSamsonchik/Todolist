@@ -5,5 +5,5 @@ export const createTodolistDomainEntity = (
   todolist: Todolist,
   options: Pick<TodolistDomain, 'filter'> = { filter: 'all' }
 ): TodolistDomain => {
-  return { ...todolist, tasksIds: [], ...options }
+  return { ...todolist, tasksIds: null, ...options }
 }

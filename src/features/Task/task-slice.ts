@@ -33,7 +33,11 @@ const isRejectedTaskAction = (action: AnyAction): action is RejectedAction => {
 // thunks
 export const fetchTasks = createAppAsyncThunk(
   'tasks/fetchTasks',
-  async (todoId: string, { rejectWithValue }) => {
+  async (todoId: string, { rejectWithValue, getState, requestId }) => {
+    const { status, requestId: currentRequestId } = getState().tasks
+
+    if (status !== 'pending' || currentRequestId !== requestId) return
+
     try {
       const { data } = await taskAPI.getTasks(todoId)
 
@@ -125,10 +129,11 @@ const tasksAdapter = createEntityAdapter<Task>()
 // slice
 const taskSlice = createSlice({
   name: 'task',
-  initialState: tasksAdapter.getInitialState<AdapterState>({
+  initialState: tasksAdapter.getInitialState<AdapterState & { requestId: string | null }>({
     status: 'idle',
     error: null,
     pendingEntityId: null,
+    requestId: null,
   }),
   reducers: {
     resetTasksError(state) {
@@ -137,10 +142,12 @@ const taskSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(fetchTasks.fulfilled, (state, action) => {
-        const { tasks } = action.payload
+      .addCase(fetchTasks.fulfilled, (state, { payload, meta }) => {
+        if (state.status === 'pending' && state.requestId === meta.requestId && payload) {
+          const { tasks } = payload
 
-        tasksAdapter.setMany(state, tasks)
+          tasksAdapter.setMany(state, tasks)
+        }
       })
       .addCase(addTask.fulfilled, (state, action) => {
         const { task } = action.payload
@@ -170,16 +177,26 @@ const taskSlice = createSlice({
       })
 
       // matchers for related actions
-      .addMatcher(isPendingTaskAction, state => {
-        state.status = 'pending'
+      .addMatcher(isPendingTaskAction, (state, { meta }) => {
+        if (state.status !== 'pending') {
+          state.status = 'pending'
+          state.requestId = meta.requestId
+        }
       })
-      .addMatcher(isFulfilledTaskAction, state => {
-        state.status = 'success'
-        state.pendingEntityId = null
+      .addMatcher(isFulfilledTaskAction, (state, { meta }) => {
+        if (state.status === 'pending' && state.requestId === meta.requestId) {
+          state.status = 'success'
+          state.requestId = null
+          state.pendingEntityId = null
+        }
       })
-      .addMatcher(isRejectedTaskAction, (state, action) => {
-        state.status = 'failure'
-        state.error = action.payload
+      .addMatcher(isRejectedTaskAction, (state, { meta, payload }) => {
+        if (state.status === 'pending' && state.requestId === meta.requestId) {
+          state.status = 'failure'
+          state.error = payload
+          state.requestId = null
+          state.pendingEntityId = null
+        }
       })
   },
 })
@@ -199,7 +216,7 @@ export const filteredTasksSelectorFactory = () => {
   const selectTasksByTodolist = createSelector(
     (state: RootState) => selectTaskEntities(state),
     selectTaskIdsByTodolist,
-    (tasksDict, taskIds) => taskIds?.map(id => tasksDict[id] as Task),
+    (tasksDict, taskIds) => taskIds.map(id => tasksDict[id] as Task),
     {
       memoizeOptions: { resultEqualityCheck: shallowEqual },
     }
@@ -209,8 +226,6 @@ export const filteredTasksSelectorFactory = () => {
     selectTasksByTodolist,
     (state: RootState, todoId: string, filter: StatusFilter) => filter,
     (tasks, filter) => {
-      if (!tasks) return
-
       if (filter === 'active') {
         return tasks.filter(t => t.status === TaskStatus.Uncompleted)
       }
