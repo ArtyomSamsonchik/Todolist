@@ -9,12 +9,19 @@ import ErrorSnackbar from '../common/components/ErrorSnackbar/ErrorSnackbar'
 import { useAppDispatch } from '../utils/hooks/hooks'
 import { authMe } from '../features/Auth/auth-shared-actions'
 
+// global variable didAuthOnce is used to escape double authMe() call in Strict Mode
+let didAuthOnce = false
+
 const App = () => {
   const [isInitialized, setIsInitialized] = useState(false)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
+    if (!didAuthOnce) {
       dispatch(authMe()).then(() => setIsInitialized(true))
+
+      didAuthOnce = true
+    }
   }, [dispatch])
 
   return (
