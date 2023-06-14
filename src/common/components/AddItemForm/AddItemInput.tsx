@@ -23,7 +23,6 @@ const AddItemInput: FC<AddItemInputProps> = props => {
       variant="outlined"
       error={!!error}
       label={label}
-      helperText={error || ''}
       disabled={isSubmitting || disabled}
       value={value}
       onChange={handleInputChange}
