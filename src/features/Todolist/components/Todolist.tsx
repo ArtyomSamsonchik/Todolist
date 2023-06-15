@@ -26,6 +26,7 @@ import { capitalize, SxProps } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 
 const addItemFormSxProps: SxProps = { width: 0.95 }
+const EditableSpanSxProps: SxProps = { variant: 'h6' }
 
 const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
@@ -45,7 +46,15 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   }
 
   const changeTodolistTitle = useCallback(
-    (title: string) => dispatch(updateTodolistTitle({ todoId, title })),
+    async (title: string) => {
+      const resultAction = await dispatch(updateTodolistTitle({ todoId, title }))
+
+      if (updateTodolistTitle.rejected.match(resultAction)) {
+        const appError = resultAction.payload
+
+        if (appError?.scope === 'validation') throw new Error(appError.message)
+      }
+    },
     [dispatch, todoId]
   )
 
@@ -65,8 +74,6 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const getButtonVariant = (filter: StatusFilter) => {
     return todolist.filter === filter ? 'contained' : 'outlined'
   }
-
-  // TODO: fix gap between 'cancel' and 'commit' buttons in editing mode set to 'on'
 
   return (
     <Grid item width={1} maxWidth={400}>
@@ -88,7 +95,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
               disableTypography
               primary={
                 <EditableSpan
-                  variant="h6"
+                  typographyProps={EditableSpanSxProps}
                   disabled={isLoading}
                   changeTitle={changeTodolistTitle}
                   onToggleEditMode={setIsEditing}

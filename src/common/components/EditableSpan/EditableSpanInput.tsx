@@ -14,7 +14,7 @@ const { focused, error, disabled } = filledInputClasses
 export type EditableSpanInputProps = Omit<FilledTextFieldProps, 'variant' | 'children'>
 
 const EditableSpanInput: FC<EditableSpanInputProps> = props => {
-  const { InputProps, ...restProps } = props
+  const { InputProps, sx, ...restProps } = props
 
   return (
     <TextField
@@ -23,6 +23,7 @@ const EditableSpanInput: FC<EditableSpanInputProps> = props => {
       multiline
       {...restProps}
       sx={{
+        width: 1,
         '& .MuiInputBase-root': {
           p: 1,
           // fragile order based on priority
@@ -33,6 +34,7 @@ const EditableSpanInput: FC<EditableSpanInputProps> = props => {
           [`&.${error}`]: { backgroundColor: bgColors.error },
           [`&.${error}:hover`]: { backgroundColor: bgColors.errorHover },
         },
+        ...sx,
       }}
     />
   )

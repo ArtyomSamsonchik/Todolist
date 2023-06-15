@@ -55,13 +55,15 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
         )
       }
     >
-      <ListItemIcon>
-        <Checkbox
-          checked={task.status === TaskStatus.Completed}
-          disabled={isLoading || isEditing}
-          onChange={handleChangeTaskStatus}
-        />
-      </ListItemIcon>
+      {!isEditing && (
+        <ListItemIcon>
+          <Checkbox
+            checked={task.status === TaskStatus.Completed}
+            disabled={isLoading}
+            onChange={handleChangeTaskStatus}
+          />
+        </ListItemIcon>
+      )}
       <ListItemText
         disableTypography
         primary={
@@ -73,6 +75,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
             {task.title}
           </EditableSpan>
         }
+        sx={isEditing ? { pl: 1.5 } : null}
       />
     </ListItem>
   )
