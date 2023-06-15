@@ -1,0 +1,1 @@
+{"version":3,"file":"static/css/main.757f7b21.css","mappings":"AAKA,WAHE,QAOF,CAJA,MAEE,SAEF","sources":["index.css"],"sourcesContent":["/* css reset */\r\nbody {\r\n  margin: 0;\r\n}\r\n\r\nul,\r\nli {\r\n  padding: 0;\r\n  margin: 0;\r\n}\r\n"],"names":[],"sourceRoot":""}
