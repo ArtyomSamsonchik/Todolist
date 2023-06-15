@@ -3,7 +3,5 @@ import { Todolist } from '../../features/Todolist/todolist-api'
 
 export const createTodolistDomainEntity = (
   todolist: Todolist,
-  options: Pick<TodolistDomain, 'filter'> = { filter: 'all' }
-): TodolistDomain => {
-  return { ...todolist, tasksIds: null, ...options }
-}
+  options: Partial<Pick<TodolistDomain, 'filter' | 'tasksIds'>> = { filter: 'all', tasksIds: null }
+) => ({ ...todolist, ...options } as TodolistDomain)

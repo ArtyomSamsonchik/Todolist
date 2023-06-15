@@ -140,7 +140,7 @@ const todolistSlice = createSlice({
         }
       })
       .addCase(addTodolist.fulfilled, (state, action) => {
-        const newTodolist = createTodolistDomainEntity(action.payload)
+        const newTodolist = createTodolistDomainEntity(action.payload, { tasksIds: [] })
 
         todolistsAdapter.addOne(state, newTodolist)
       })
