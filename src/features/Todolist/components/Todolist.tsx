@@ -2,7 +2,6 @@ import React, { FC, useCallback, useMemo, useState } from 'react'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import Paper from '@mui/material/Paper'
-import Task from '../../Task/Task'
 import ListItem from '@mui/material/ListItem'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import IconButton from '@mui/material/IconButton'
@@ -24,6 +23,7 @@ import { useAppDispatch, useAppSelector } from '../../../utils/hooks/hooks'
 import { LoadingBackdrop } from '../../../common/components/LoadingBackdrop/LoadingBackdrop'
 import { capitalize, SxProps } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
+import Task from '../../Task/Task'
 
 const addItemFormSxProps: SxProps = { width: 0.95 }
 const EditableSpanSxProps: SxProps = { variant: 'h6' }
@@ -46,15 +46,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   }
 
   const changeTodolistTitle = useCallback(
-    async (title: string) => {
-      const resultAction = await dispatch(updateTodolistTitle({ todoId, title }))
-
-      if (updateTodolistTitle.rejected.match(resultAction)) {
-        const appError = resultAction.payload
-
-        if (appError?.scope === 'validation') throw new Error(appError.message)
-      }
-    },
+    (title: string) => dispatch(updateTodolistTitle({ todoId, title })).unwrap(),
     [dispatch, todoId]
   )
 
@@ -99,6 +91,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
                   disabled={isLoading}
                   changeTitle={changeTodolistTitle}
                   onToggleEditMode={setIsEditing}
+                  sx={{ ' & .MuiTypography-root': { pt: 0.5 } }}
                 >
                   {todolist.title}
                 </EditableSpan>

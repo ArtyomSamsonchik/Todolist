@@ -89,11 +89,7 @@ const LoginPage = () => {
             <FormControlLabel
               sx={{ mt: 1, mb: 0.5 }}
               control={
-                <Checkbox
-                  disabled={formik.isSubmitting}
-                  checked={formik.values.rememberMe}
-                  {...formik.getFieldProps('rememberMe')}
-                />
+                <Checkbox disabled={formik.isSubmitting} {...formik.getFieldProps('rememberMe')} />
               }
               label="Remember me"
             />

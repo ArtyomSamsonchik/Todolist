@@ -9,7 +9,7 @@ const bgColors = {
   error: 'rgba(211, 47, 47, 0.07)',
   errorHover: 'rgba(211, 47, 47, 0.10)',
 }
-const { focused, error, disabled } = filledInputClasses
+const { root, focused, error, disabled } = filledInputClasses
 
 export type EditableSpanInputProps = Omit<FilledTextFieldProps, 'variant' | 'children'>
 
@@ -23,16 +23,16 @@ const EditableSpanInput: FC<EditableSpanInputProps> = props => {
       multiline
       {...restProps}
       sx={{
-        width: 1,
-        '& .MuiInputBase-root': {
+        flexGrow: 1,
+        [`& .${root}`]: {
           p: 1,
           // fragile order based on priority
           backgroundColor: bgColors.default,
           [`&.${focused}`]: { backgroundColor: bgColors.default },
           '&:hover': { backgroundColor: bgColors.hover },
-          [`&.${disabled}`]: { backgroundColor: bgColors.disabled },
           [`&.${error}`]: { backgroundColor: bgColors.error },
           [`&.${error}:hover`]: { backgroundColor: bgColors.errorHover },
+          [`&.${disabled}`]: { backgroundColor: bgColors.disabled },
         },
         ...sx,
       }}

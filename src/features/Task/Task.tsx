@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useCallback, useState } from 'react'
+import React, { ChangeEvent, FC, memo, useCallback, useState } from 'react'
 import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
 import ListItem from '@mui/material/ListItem'
@@ -15,7 +15,7 @@ type TaskProps = {
   taskId: string
 }
 
-const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
+const Task: FC<TaskProps> = memo(({ todoId, taskId }) => {
   const task = useAppSelector(state => selectTask(state, taskId))
   const isLoading = useAppSelector(state => selectTaskIsLoading(state, taskId))
   const dispatch = useAppDispatch()
@@ -31,15 +31,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
   }
 
   const changeTaskTitle = useCallback(
-    async (title: string) => {
-      const resultAction = await dispatch(updateTask({ todoId, taskId, patch: { title } }))
-
-      if (updateTask.rejected.match(resultAction)) {
-        const appError = resultAction.payload
-
-        if (appError?.scope === 'validation') throw new Error(appError.message)
-      }
-    },
+    (title: string) => dispatch(updateTask({ todoId, taskId, patch: { title } })).unwrap(),
     [dispatch, taskId, todoId]
   )
 
@@ -71,6 +63,7 @@ const Task: FC<TaskProps> = React.memo(({ todoId, taskId }) => {
             disabled={isLoading}
             changeTitle={changeTaskTitle}
             onToggleEditMode={setIsEditing}
+            sx={{ width: '100%' }}
           >
             {task.title}
           </EditableSpan>

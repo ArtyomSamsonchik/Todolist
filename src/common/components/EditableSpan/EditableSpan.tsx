@@ -1,15 +1,13 @@
-import React, { ChangeEvent, FC, useState, KeyboardEvent } from 'react'
+import React, { ChangeEvent, FC, KeyboardEvent, useState } from 'react'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import EditIcon from '@mui/icons-material/Edit'
 import Cancel from '@mui/icons-material/Cancel'
 import IconButton from '@mui/material/IconButton'
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn'
 import EditableSpanInput from './EditableSpanInput'
-import { EditableSpanContainer } from './styled'
-import { BASIC_ERROR_MESSAGE } from '../../../app/constants'
-import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material'
 import Box from '@mui/material/Box'
+import isAppError from '../../../utils/helpers/isAppError'
 
 type EditableSpanProps = {
   children: string
@@ -17,7 +15,7 @@ type EditableSpanProps = {
   changeTitle: (title: string) => Promise<any> | void
   onToggleEditMode?: (isEditing: boolean) => void
   sx?: SxProps<Theme>
-  typographyProps?: TypographyProps
+  typographyProps?: Omit<TypographyProps, 'sx'>
 }
 
 const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
@@ -45,13 +43,11 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
       await changeTitle(title.replace(/\s+/gm, ' ').trim())
       disableEditMode()
     } catch (e) {
-      let message: string
-
-      if (e instanceof Error) message = e.message
-      else if (typeof e === 'string') message = e
-      else message = BASIC_ERROR_MESSAGE
-
-      setError(message)
+      if (isAppError(e) && e.scope === 'validation') {
+        setError(e.message)
+      } else {
+        throw e
+      }
     }
   }
 
@@ -63,49 +59,47 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
 
   const handleKeydown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') disableEditMode()
+    else if (e.ctrlKey && e.key === 'Enter') commitNewTitle()
   }
 
   return (
-    <EditableSpanContainer sx={sx}>
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        {editMode ? (
-          <EditableSpanInput
-            autoFocus
-            error={!!error}
-            disabled={disabled}
-            value={title}
-            onChange={handleChange}
-            onKeyDown={handleKeydown}
-          />
-        ) : (
-          <Typography
-            noWrap
-            component="span"
-            {...typographyProps}
-            color={`text.${disabled ? 'disabled' : 'primary'}`}
-          >
-            {children}
-          </Typography>
-        )}
-        {editMode ? (
-          <>
-            <IconButton sx={{ ml: 1 }} disabled={disabled} onClick={disableEditMode}>
-              <Cancel />
-            </IconButton>
-            <IconButton disabled={disabled || !!error} onClick={commitNewTitle}>
-              <AssignmentTurnedInIcon />
-            </IconButton>
-          </>
-        ) : (
-          <IconButton sx={{ mx: 1 }} disabled={disabled} onClick={activateEditMode}>
-            <EditIcon />
+    <Box display="flex" alignItems="flex-start" width={1} sx={sx}>
+      {editMode ? (
+        <EditableSpanInput
+          autoFocus
+          error={!!error}
+          helperText={error}
+          disabled={disabled}
+          value={title}
+          onChange={handleChange}
+          onKeyDown={handleKeydown}
+        />
+      ) : (
+        <Typography
+          noWrap
+          component="span"
+          {...typographyProps}
+          color={`text.${disabled ? 'disabled' : 'primary'}`}
+          sx={{ flexGrow: 1, pt: 1 }}
+        >
+          {children}
+        </Typography>
+      )}
+      {editMode ? (
+        <>
+          <IconButton sx={{ ml: 1 }} disabled={disabled} onClick={disableEditMode}>
+            <Cancel />
           </IconButton>
-        )}
-      </Box>
-      <FormHelperText sx={{ pl: 0.5, pr: 11.5, textAlign: 'center' }} error={!!error}>
-        {error}
-      </FormHelperText>
-    </EditableSpanContainer>
+          <IconButton disabled={disabled || !!error} onClick={commitNewTitle}>
+            <AssignmentTurnedInIcon />
+          </IconButton>
+        </>
+      ) : (
+        <IconButton sx={{ mx: 1 }} disabled={disabled} onClick={activateEditMode}>
+          <EditIcon />
+        </IconButton>
+      )}
+    </Box>
   )
 })
 
