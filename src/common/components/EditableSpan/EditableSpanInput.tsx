@@ -1,6 +1,6 @@
-import { FC } from 'react'
-import { filledInputClasses } from '@mui/material/FilledInput'
-import TextField, { FilledTextFieldProps } from '@mui/material/TextField'
+import { ChangeEvent, FC, KeyboardEvent } from 'react'
+import { filledInputClasses as inputClasses } from '@mui/material/FilledInput'
+import TextField from '@mui/material/TextField'
 
 const bgColors = {
   default: 'rgba(25, 118, 210, 0.06)',
@@ -9,33 +9,38 @@ const bgColors = {
   error: 'rgba(211, 47, 47, 0.07)',
   errorHover: 'rgba(211, 47, 47, 0.10)',
 }
-const { root, focused, error, disabled } = filledInputClasses
 
-export type EditableSpanInputProps = Omit<FilledTextFieldProps, 'variant' | 'children'>
+export type EditableSpanInputProps = {
+  error?: string
+  disabled?: boolean
+  value: string
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
+  onKeyDown: (e: KeyboardEvent<HTMLInputElement>) => void
+}
 
-const EditableSpanInput: FC<EditableSpanInputProps> = props => {
-  const { InputProps, sx, ...restProps } = props
-
+const EditableSpanInput: FC<EditableSpanInputProps> = ({ error, ...restProps }) => {
   return (
     <TextField
       variant="filled"
-      InputProps={{ disableUnderline: true, ...InputProps }}
+      autoFocus
       multiline
-      {...restProps}
-      sx={{
-        flexGrow: 1,
-        [`& .${root}`]: {
+      error={!!error}
+      helperText={error}
+      InputProps={{
+        disableUnderline: true,
+        sx: {
           p: 1,
-          // fragile order based on priority
-          backgroundColor: bgColors.default,
-          [`&.${focused}`]: { backgroundColor: bgColors.default },
+          [`&, &.${inputClasses.focused}`]: { backgroundColor: bgColors.default },
           '&:hover': { backgroundColor: bgColors.hover },
-          [`&.${error}`]: { backgroundColor: bgColors.error },
-          [`&.${error}:hover`]: { backgroundColor: bgColors.errorHover },
-          [`&.${disabled}`]: { backgroundColor: bgColors.disabled },
+          [`&.${inputClasses.error}`]: { backgroundColor: bgColors.error },
+          [`&:where(.${inputClasses.error}):hover`]: {
+            backgroundColor: bgColors.errorHover,
+          },
+          [`&.${inputClasses.disabled}`]: { backgroundColor: bgColors.disabled },
         },
-        ...sx,
       }}
+      sx={{ flexGrow: 1 }}
+      {...restProps}
     />
   )
 }

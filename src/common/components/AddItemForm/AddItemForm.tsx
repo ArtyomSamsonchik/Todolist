@@ -1,15 +1,15 @@
 import React, { FC } from 'react'
 import Box from '@mui/material/Box'
-import FormHelperText from '@mui/material/FormHelperText'
 import IconButton from '@mui/material/IconButton'
 import { SxProps, Theme } from '@mui/material'
 import AddBoxIcon from '@mui/icons-material/AddBox'
 import { Formik, FormikConfig } from 'formik'
 import AddItemInput from './AddItemInput'
-import { BASIC_ERROR_MESSAGE } from '../../../app/constants'
-import { AddItemFormContainer } from './styled'
+import isAppError from '../../../utils/helpers/isAppError'
 
-export type AddItemFormValues = { title: string }
+export type AddItemFormValues = {
+  title: string
+}
 
 type AddItemFormProps = {
   sx?: SxProps<Theme>
@@ -29,13 +29,11 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
       await addItemCallback(title)
       resetForm()
     } catch (e) {
-      let message: string
-
-      if (e instanceof Error) message = e.message
-      else if (typeof e === 'string') message = e
-      else message = BASIC_ERROR_MESSAGE
-
-      setErrors({ title: message })
+      if (isAppError(e) && e.scope === 'validation') {
+        setErrors({ title: e.message })
+      } else {
+        throw e
+      }
     }
   }
 
@@ -46,31 +44,26 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
       validateOnBlur={false}
       onSubmit={onSubmit}
     >
-      {({ isSubmitting, isValid, handleSubmit, errors }) => {
+      {({ isSubmitting, isValid, handleSubmit }) => {
         return (
-          <AddItemFormContainer sx={sx}>
-            <Box
-              component="form"
-              display="flex"
-              justifyContent="center"
-              alignItems="center"
-              onSubmit={handleSubmit}
-              sx={{ pl: 1 }}
+          <Box
+            component="form"
+            display="flex"
+            alignItems="flex-start"
+            position="relative"
+            onSubmit={handleSubmit}
+            sx={sx}
+          >
+            <AddItemInput label={label} disabled={disabled || isSubmitting} />
+            <IconButton
+              type="submit"
+              color="primary"
+              disabled={isSubmitting || !isValid || disabled}
+              sx={{ ml: 1, top: 8 }}
             >
-              <AddItemInput label={label} disabled={disabled} isSubmitting={isSubmitting} />
-              <IconButton
-                type="submit"
-                disabled={isSubmitting || !isValid || disabled}
-                color="primary"
-                sx={{ ml: 1 }}
-              >
-                <AddBoxIcon />
-              </IconButton>
-            </Box>
-            <FormHelperText sx={{ pl: 2, pr: 7, textAlign: 'center' }} error={!!errors.title}>
-              {errors.title}
-            </FormHelperText>
-          </AddItemFormContainer>
+              <AddBoxIcon />
+            </IconButton>
+          </Box>
         )
       }}
     </Formik>

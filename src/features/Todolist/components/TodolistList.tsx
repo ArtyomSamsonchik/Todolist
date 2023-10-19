@@ -32,15 +32,7 @@ const TodolistList = React.memo(() => {
   }, [dispatch, isLoggedIn])
 
   const handleAddTodolist = useCallback(
-    async (title: string) => {
-      const resultAction = await dispatch(addTodolist(title))
-
-      if (addTodolist.rejected.match(resultAction)) {
-        const appError = resultAction.payload
-
-        if (appError?.scope === 'validation') throw new Error(appError.message)
-      }
-    },
+    async (title: string) => dispatch(addTodolist(title)).unwrap(),
     [dispatch]
   )
 

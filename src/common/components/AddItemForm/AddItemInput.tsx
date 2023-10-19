@@ -3,15 +3,12 @@ import TextField from '@mui/material/TextField'
 import { useField } from 'formik'
 
 type AddItemInputProps = {
-  isSubmitting: boolean
   label?: string
   disabled?: boolean
 }
 
-const AddItemInput: FC<AddItemInputProps> = props => {
-  const { label, disabled, isSubmitting } = props
-
-  const [{ value }, { error }, { setError, setValue }] = useField<string>('title')
+const AddItemInput: FC<AddItemInputProps> = ({ label, disabled }) => {
+  const [{ value }, { error }, { setError, setValue }] = useField('title')
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (error) setError(undefined)
@@ -22,8 +19,9 @@ const AddItemInput: FC<AddItemInputProps> = props => {
     <TextField
       variant="outlined"
       error={!!error}
+      helperText={error}
       label={label}
-      disabled={isSubmitting || disabled}
+      disabled={disabled}
       value={value}
       onChange={handleInputChange}
       sx={{ width: 1 }}

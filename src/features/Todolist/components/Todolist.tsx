@@ -25,10 +25,12 @@ import { capitalize, SxProps } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import Task from '../../Task/Task'
 
-const addItemFormSxProps: SxProps = { width: 0.95 }
+const addItemFormSxProps: SxProps = { pl: 1, width: 0.95 }
 const EditableSpanSxProps: SxProps = { variant: 'h6' }
 
-const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
+const Todolist: FC<{
+  todoId: string
+}> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
   const todolist = useAppSelector(state => selectTodolist(state, todoId)) as TodolistDomain
   const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
@@ -51,15 +53,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   )
 
   const handleAddTaskClick = useCallback(
-    async (title: string) => {
-      const resultAction = await dispatch(addTask({ todoId, title }))
-
-      if (addTask.rejected.match(resultAction)) {
-        const appError = resultAction.payload
-
-        if (appError?.scope === 'validation') throw new Error(appError.message)
-      }
-    },
+    async (title: string) => dispatch(addTask({ todoId, title })).unwrap(),
     [dispatch, todoId]
   )
 

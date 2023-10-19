@@ -23,7 +23,7 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
 
   const [title, setTitle] = useState('')
   const [editMode, setEditMode] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | undefined>(undefined)
 
   const activateEditMode = () => {
     setEditMode(true)
@@ -33,7 +33,7 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
 
   const disableEditMode = () => {
     setEditMode(false)
-    setError(null)
+    setError(undefined)
     setTitle('')
     onToggleEditMode?.(false)
   }
@@ -52,7 +52,7 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
   }
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (error) setError(null)
+    if (error) setError(undefined)
 
     setTitle(e.currentTarget.value)
   }
@@ -66,9 +66,7 @@ const EditableSpan: FC<EditableSpanProps> = React.memo(props => {
     <Box display="flex" alignItems="flex-start" width={1} sx={sx}>
       {editMode ? (
         <EditableSpanInput
-          autoFocus
-          error={!!error}
-          helperText={error}
+          error={error}
           disabled={disabled}
           value={title}
           onChange={handleChange}
