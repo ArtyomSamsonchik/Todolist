@@ -16,6 +16,8 @@ import LoginFormInput from './LoginFormInput/LoginFormInput'
 import FormLabel from '@mui/material/FormLabel'
 import Typography from '@mui/material/Typography'
 import { PATH } from '../../../app/constants'
+import useAppLocation from '../../../utils/hooks/useAppLocation'
+import isRedirectState from '../../../utils/helpers/isRedirectState'
 
 export type FormValues = {
   email: string
@@ -26,6 +28,7 @@ export type FormValues = {
 const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
+  const { state: redirectState } = useAppLocation()
   const dispatch = useAppDispatch()
 
   const toggleIsVisible = () => {
@@ -33,7 +36,11 @@ const LoginPage = () => {
   }
 
   if (isLoggedIn) {
-    return <Navigate to={`/${PATH.TODOLIST}`} replace />
+    const path = isRedirectState(redirectState)
+      ? { to: redirectState.from, replace: true }
+      : { to: PATH.ROOT }
+
+    return <Navigate {...path} />
   }
 
   return (

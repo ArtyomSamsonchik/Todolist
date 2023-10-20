@@ -1,6 +1,7 @@
 export const BASIC_ERROR_MESSAGE = 'Something went wrong! Try again in a few minutes'
 
 export const PATH = {
+  ROOT: '/',
   TODOLIST: 'todolist',
   LOGIN: 'login',
   ERROR: '404',

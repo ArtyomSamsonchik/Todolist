@@ -36,10 +36,6 @@ const TodolistList = React.memo(() => {
     [dispatch]
   )
 
-  if (!isLoggedIn) {
-    return <Navigate to={`/${PATH.LOGIN}`} />
-  }
-
   return (
     <>
       <Grid container spacing={3} justifyContent="center" px={2}>

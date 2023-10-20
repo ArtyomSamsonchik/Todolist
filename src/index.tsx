@@ -8,6 +8,7 @@ import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
 import TodolistList from './features/Todolist/components/TodolistList'
 import LoginPage from './features/Auth/LoginPage/LoginPage'
 import { PATH } from './app/constants'
+import AuthRedirect from './common/components/AuthRedirect'
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 
@@ -21,12 +22,20 @@ const router = createHashRouter([
     ),
     children: [
       {
-        index: true,
-        element: <TodolistList />,
-      },
-      {
-        path: PATH.TODOLIST,
-        element: <TodolistList />,
+        // Place ONLY the elements you want to protect in AuthRedirect.
+        // Do not place an element in AuthRedirect that you want to redirect to!
+        // This may cause an infinite loop of redirects within AuthRedirect
+        element: <AuthRedirect />,
+        children: [
+          {
+            index: true,
+            element: <TodolistList />,
+          },
+          {
+            path: PATH.TODOLIST,
+            element: <TodolistList />,
+          },
+        ],
       },
       {
         path: PATH.LOGIN,
