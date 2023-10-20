@@ -1,42 +1,41 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import MuiAppBar from '@mui/material/AppBar'
-import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
-import { logout, selectAuthStatus, selectIsLoggedIn } from '../../features/Auth/auth-slice'
-import Button from '@mui/material/Button'
 import ProgressBar from './ProgressBar/ProgressBar'
+import { styled } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/icons-material/Menu'
+import Sidebar from './Sidebar'
+
+const Offset = styled('div')(({ theme }) => theme.mixins.toolbar)
 
 const AppBar = React.memo(() => {
-  const isLoggedIn = useAppSelector(selectIsLoggedIn)
-  const authStatus = useAppSelector(selectAuthStatus)
-  const dispatch = useAppDispatch()
+  const [isOpen, setIsOpen] = useState(false)
 
-  const handleLogout = () => dispatch(logout())
+  const handleOpenMenuClick = () => setIsOpen(true)
+  const handleCloseMenuClick = () => setIsOpen(false)
 
   return (
-    <MuiAppBar position="fixed">
-      <Toolbar>
-        {isLoggedIn && (
-          <Button
-            color="inherit"
+    <>
+      <MuiAppBar position="fixed">
+        <Toolbar>
+          <IconButton
             size="large"
-            disabled={authStatus === 'pending'}
-            sx={{ ml: { sx: 0, sm: 3 } }}
-            onClick={handleLogout}
+            edge="start"
+            color="inherit"
+            sx={{ mr: 2 }}
+            onClick={handleOpenMenuClick}
           >
-            Log out
-          </Button>
-        )}
-        <Typography
-          variant="h5"
-          sx={{ top: '50%', left: '50%', translate: '-50% -50%', position: 'absolute' }}
-        >
-          Todolist
-        </Typography>
-      </Toolbar>
-      <ProgressBar />
-    </MuiAppBar>
+            <Menu />
+          </IconButton>
+          <Typography variant="h5">Todolist</Typography>
+        </Toolbar>
+        <ProgressBar />
+      </MuiAppBar>
+      <Offset />
+      <Sidebar open={isOpen} onClose={handleCloseMenuClick} />
+    </>
   )
 })
 

@@ -8,7 +8,6 @@ import useAppLocation from '../../utils/hooks/useAppLocation'
 const AuthRedirect: FC = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
   const { pathname } = useAppLocation()
-  console.log(isLoggedIn)
 
   return isLoggedIn ? <Outlet /> : <Navigate to={PATH.LOGIN} state={{ from: pathname }} />
 }

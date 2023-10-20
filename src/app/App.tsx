@@ -9,7 +9,7 @@ import ErrorSnackbar from '../common/components/ErrorSnackbar/ErrorSnackbar'
 import { useAppDispatch } from '../utils/hooks/hooks'
 import { authMe } from '../features/Auth/auth-shared-actions'
 
-// global variable didAuthOnce is used to escape double authMe() call in Strict Mode
+// external variable didAuthOnce is used to escape double authMe() call in Strict Mode
 let didAuthOnce = false
 
 const App = () => {
@@ -28,10 +28,11 @@ const App = () => {
     <>
       <CssBaseline enableColorScheme />
       <AppBar />
+      {/*TODO: create separate component named LoadingBackdrop. Should I unmount CircularProgress or just hide it?*/}
       <Backdrop open={!isInitialized} sx={{ zIndex: 1110 }}>
         <CircularProgress thickness={5} size={70} sx={{ color: '#fff' }} />
       </Backdrop>
-      <Box sx={{ mt: { xs: 10, sm: 11 } }}>{isInitialized && <Outlet />}</Box>
+      <Box sx={{ pt: { xs: 3, md: 4 } }}>{isInitialized && <Outlet />}</Box>
       <ErrorSnackbar />
     </>
   )

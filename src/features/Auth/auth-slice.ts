@@ -33,7 +33,7 @@ export const login = createAppAsyncThunk(
     try {
       const { data } = await authAPI.login(arg)
 
-      if (data.resultCode === ResultCode.Ok) return { userId: data.data.userId }
+      if (data.resultCode === ResultCode.Ok) return { userId: data.data.userId, email: arg.email }
 
       return rejectWithValue(createAppError(data.messages[0]))
     } catch (e) {
@@ -58,10 +58,14 @@ export const logout = createAppAsyncThunk('auth/logout', async (_, { rejectWithV
   }
 })
 
-const initialState: Pick<AdapterState, 'error' | 'status'> & { isLoggedIn: boolean } = {
+const initialState: Pick<AdapterState, 'error' | 'status'> & {
+  isLoggedIn: boolean
+  email: string | null
+} = {
   status: 'idle',
   error: null,
   isLoggedIn: false,
+  email: null,
 }
 
 // slice
@@ -75,17 +79,21 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      .addCase(login.fulfilled, state => {
+      .addCase(login.fulfilled, (state, action) => {
         // TODO: add initLoading state prop to remove 'not auth' error on init
         state.isLoggedIn = true
+        state.email = action.payload.email
         state.status = 'success'
       })
       .addCase(logout.fulfilled, state => {
         state.isLoggedIn = false
+        state.email = null
         state.status = 'success'
       })
       .addCase(authMe.fulfilled, (state, action) => {
-        if (action.payload.isAuthorized) state.isLoggedIn = true
+        const { email, isLoggedIn } = action.payload
+        state.isLoggedIn = isLoggedIn
+        state.email = email
         state.status = 'success'
       })
 
@@ -107,6 +115,7 @@ const authSlice = createSlice({
 export const selectIsLoggedIn = (state: RootState) => state.auth.isLoggedIn
 export const selectAuthStatus = (state: RootState) => state.auth.status
 export const selectAuthError = (state: RootState) => state.auth.error
+export const selectUserEmail = (state: RootState) => state.auth.email
 
 export const { resetAuthError } = authSlice.actions
 

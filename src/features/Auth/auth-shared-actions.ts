@@ -8,7 +8,7 @@ export const authMe = createAppAsyncThunk('auth/me', async (_, { rejectWithValue
   try {
     const { data } = await authAPI.me()
 
-    if (data.resultCode === ResultCode.Ok) return { isAuthorized: true }
+    if (data.resultCode === ResultCode.Ok) return { isLoggedIn: true, email: data.data.email }
 
     // const { status, isLoggedIn } = getState().auth
     // const didNotInitialized = status === 'idle' && isLoggedIn === false,
@@ -18,7 +18,7 @@ export const authMe = createAppAsyncThunk('auth/me', async (_, { rejectWithValue
     // if (notAuthorizedOnFirstLoad) return { isAuthorized: false }
 
     // return rejectWithValue(createAppError(errorMessage))
-    return { isAuthorized: false }
+    return { isLoggedIn: false, email: null }
   } catch (e) {
     const message = getThunkErrorMessage(e as Error)
 
