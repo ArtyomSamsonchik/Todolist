@@ -57,9 +57,10 @@ const AddItemForm: FC<AddItemFormProps> = React.memo(props => {
             <AddItemInput label={label} disabled={disabled || isSubmitting} />
             <IconButton
               type="submit"
+              size="large"
               color="primary"
               disabled={isSubmitting || !isValid || disabled}
-              sx={{ ml: 1, top: 8 }}
+              sx={{ ml: 1, top: 4 }}
             >
               <AddBoxIcon />
             </IconButton>

@@ -24,13 +24,12 @@ import { LoadingBackdrop } from '../../../common/components/LoadingBackdrop/Load
 import { capitalize, SxProps } from '@mui/material'
 import ListItemText from '@mui/material/ListItemText'
 import Task from '../../Task/Task'
+import Box from '@mui/material/Box'
 
 const addItemFormSxProps: SxProps = { pl: 1, width: 0.95 }
 const EditableSpanSxProps: SxProps = { variant: 'h6' }
 
-const Todolist: FC<{
-  todoId: string
-}> = React.memo(({ todoId }) => {
+const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
   const { selectFilteredTaskIds } = useMemo(filteredTasksSelectorFactory, [])
   const todolist = useAppSelector(state => selectTodolist(state, todoId)) as TodolistDomain
   const taskIds = useAppSelector(state => selectFilteredTaskIds(state, todoId, todolist.filter))
@@ -62,7 +61,7 @@ const Todolist: FC<{
   }
 
   return (
-    <Grid item width={1} maxWidth={400}>
+    <Grid item xs={12} sm={8} md={6} lg={4}>
       <Paper elevation={3} sx={{ position: 'relative' }}>
         <LoadingBackdrop open={isLoading || todolist.tasksIds === null} />
         <List component="div">
@@ -99,11 +98,19 @@ const Todolist: FC<{
               sx={addItemFormSxProps}
             />
           </ListItem>
-          <ul>
+          <Box
+            component="ul"
+            sx={{
+              minHeight: '4em',
+              maxHeight: '12em',
+              overflow: 'auto',
+              scrollbarWidth: 'thin',
+            }}
+          >
             {taskIds.map(id => (
               <Task key={id} todoId={todoId} taskId={id} />
             ))}
-          </ul>
+          </Box>
           <ListItem component="div">
             <ButtonGroup
               sx={{

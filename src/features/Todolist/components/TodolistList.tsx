@@ -2,12 +2,10 @@ import React, { useCallback, useEffect } from 'react'
 import Todolist from './Todolist'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
-import { Navigate } from 'react-router-dom'
-import { PATH } from '../../../app/constants'
 import AddItemForm from '../../../common/components/AddItemForm/AddItemForm'
-import { useAppSelector, useAppDispatch } from '../../../utils/hooks/hooks'
+import { useAppDispatch, useAppSelector } from '../../../utils/hooks/hooks'
 import { selectIsLoggedIn } from '../../Auth/auth-slice'
-import { selectTodolistIds, fetchTodolists, addTodolist } from '../todolist-slice'
+import { addTodolist, fetchTodolists, selectTodolistIds } from '../todolist-slice'
 import { fetchTasks } from '../../Task/task-slice'
 
 const TodolistList = React.memo(() => {
@@ -38,12 +36,14 @@ const TodolistList = React.memo(() => {
 
   return (
     <>
-      <Grid container spacing={3} justifyContent="center" px={2}>
-        <Grid item xs={12}>
-          <Box maxWidth={380} m="0 auto">
-            <AddItemForm label="Add todolist" addItemCallback={handleAddTodolist} />
-          </Box>
-        </Grid>
+      <Box maxWidth={400} mx="auto" my={{ xs: 2, sm: 3 }}>
+        <AddItemForm label="Add todolist" addItemCallback={handleAddTodolist} />
+      </Box>
+      <Grid
+        container
+        spacing={{ xs: 2, md: 3 }}
+        sx={{ justifyContent: { sm: 'center', md: 'flex-start' } }}
+      >
         {todoIds.map(id => (
           <Todolist key={id} todoId={id as string} />
         ))}
