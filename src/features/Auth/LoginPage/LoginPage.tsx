@@ -57,7 +57,7 @@ const LoginPage = () => {
     >
       {formik => {
         return (
-          <Container component="form" maxWidth="xs" onSubmit={formik.handleSubmit}>
+          <Container disableGutters component="form" maxWidth="xs" onSubmit={formik.handleSubmit}>
             <FormLabel>
               <Typography variant="body1" mb={2} sx={{ lineHeight: 1.7 }}>
                 To log in get registered

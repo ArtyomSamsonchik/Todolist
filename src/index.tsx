@@ -5,7 +5,7 @@ import App from './app/App'
 import { Provider } from 'react-redux'
 import store from './app/store'
 import { createHashRouter, Navigate, RouterProvider } from 'react-router-dom'
-import TodolistList from './features/Todolist/components/TodolistList'
+import TodolistsPage from './features/Todolist/components/TodolistsPage'
 import LoginPage from './features/Auth/LoginPage/LoginPage'
 import { PATH } from './app/constants'
 import AuthRedirect from './common/components/AuthRedirect'
@@ -29,11 +29,11 @@ const router = createHashRouter([
         children: [
           {
             index: true,
-            element: <TodolistList />,
+            element: <TodolistsPage />,
           },
           {
             path: PATH.TODOLIST,
-            element: <TodolistList />,
+            element: <TodolistsPage />,
           },
         ],
       },

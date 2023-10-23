@@ -32,7 +32,7 @@ const App = () => {
       <Backdrop open={!isInitialized} sx={{ zIndex: 1110 }}>
         <CircularProgress thickness={5} size={70} sx={{ color: '#fff' }} />
       </Backdrop>
-      <Box px={{ xs: 2, md: 3 }} maxWidth={1400} margin="0 auto">
+      <Box p={{ xs: 2, md: 3 }} maxWidth={1400} margin="0 auto">
         {isInitialized && <Outlet />}
       </Box>
       <ErrorSnackbar />

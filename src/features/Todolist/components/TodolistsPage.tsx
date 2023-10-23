@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react'
-import Todolist from './Todolist'
+import Todolist from './todolist/Todolist'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
 import AddItemForm from '../../../common/components/AddItemForm/AddItemForm'
@@ -8,7 +8,7 @@ import { selectIsLoggedIn } from '../../Auth/auth-slice'
 import { addTodolist, fetchTodolists, selectTodolistIds } from '../todolist-slice'
 import { fetchTasks } from '../../Task/task-slice'
 
-const TodolistList = React.memo(() => {
+const TodolistsPage = React.memo(() => {
   const todoIds = useAppSelector(selectTodolistIds)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
   const dispatch = useAppDispatch()
@@ -36,7 +36,7 @@ const TodolistList = React.memo(() => {
 
   return (
     <>
-      <Box maxWidth={400} mx="auto" my={{ xs: 2, sm: 3 }}>
+      <Box maxWidth={400} mx="auto" mb={{ xs: 2, sm: 3 }}>
         <AddItemForm label="Add todolist" addItemCallback={handleAddTodolist} />
       </Box>
       <Grid
@@ -52,4 +52,4 @@ const TodolistList = React.memo(() => {
   )
 })
 
-export default TodolistList
+export default TodolistsPage
