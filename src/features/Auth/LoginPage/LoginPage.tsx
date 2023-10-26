@@ -10,24 +10,26 @@ import Visibility from '@mui/icons-material/Visibility'
 import VisibilityOff from '@mui/icons-material/VisibilityOff'
 import { Navigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '../../../utils/hooks/hooks'
-import { login, selectIsLoggedIn } from '../auth-slice'
+import { login, selectCaptchaUrl, selectIsLoggedIn } from '../auth-slice'
 import { validateLogin } from '../../../utils/helpers/validateLogin'
 import LoginFormInput from './LoginFormInput/LoginFormInput'
-import FormLabel from '@mui/material/FormLabel'
-import Typography from '@mui/material/Typography'
 import { PATH } from '../../../app/constants'
 import useAppLocation from '../../../utils/hooks/useAppLocation'
 import isRedirectState from '../../../utils/helpers/isRedirectState'
+import LoginFormCaptcha from './LoginFormCaptcha'
+import LoginFormLabel from './LoginFormLabel'
 
 export type FormValues = {
   email: string
   password: string
   rememberMe: boolean
+  captcha: string
 }
 
 const LoginPage = () => {
   const [isVisible, setIsVisible] = useState(false)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
+  const captchaUrl = useAppSelector(selectCaptchaUrl)
   const { state: redirectState } = useAppLocation()
   const dispatch = useAppDispatch()
 
@@ -50,33 +52,22 @@ const LoginPage = () => {
           email: '',
           password: '',
           rememberMe: false,
+          captcha: '',
         } as FormValues
       }
-      validate={validateLogin}
-      onSubmit={values => dispatch(login(values))}
+      validate={validateLogin(!!captchaUrl)}
+      onSubmit={async values => {
+        // TODO: consider displaying validation errors in the fields of the login form
+        const res = await dispatch(login(values))
+
+        if (login.rejected.match(res) && res.payload?.scope === 'validation') {
+        }
+      }}
     >
       {formik => {
         return (
           <Container disableGutters component="form" maxWidth="xs" onSubmit={formik.handleSubmit}>
-            <FormLabel>
-              <Typography variant="body1" mb={2} sx={{ lineHeight: 1.7 }}>
-                To log in get registered
-                <a
-                  href="https://social-network.samuraijs.com/"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ marginLeft: 6 }}
-                >
-                  here
-                </a>
-                <br />
-                or use common test account credentials:
-                <br />
-                Email: free@samuraijs.com
-                <br />
-                Password: free
-              </Typography>
-            </FormLabel>
+            <LoginFormLabel />
             <LoginFormInput name="email" label="email" disabled={formik.isSubmitting} />
             <LoginFormInput
               name="password"
@@ -100,12 +91,13 @@ const LoginPage = () => {
               }
               label="Remember me"
             />
+            <LoginFormCaptcha captchaUrl={captchaUrl} disabled={formik.isSubmitting} />
             <Button
               size="large"
               fullWidth
               variant="contained"
               type="submit"
-              sx={{ mt: 0.5 }}
+              sx={{ mt: 1 }}
               disabled={!formik.isValid || formik.isSubmitting}
             >
               Login

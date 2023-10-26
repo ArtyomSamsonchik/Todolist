@@ -4,7 +4,9 @@ import { useField } from 'formik'
 import TextField from '@mui/material/TextField'
 import { FormValues } from '../LoginPage'
 
-type LoginFormInputProps = TextFieldProps & { name: keyof FormValues }
+type LoginFormInputProps = TextFieldProps & {
+  name: keyof FormValues
+}
 
 const LoginFormInput: FC<LoginFormInputProps> = ({ name, ...props }) => {
   const [field, { touched, error }] = useField(name)
@@ -15,7 +17,7 @@ const LoginFormInput: FC<LoginFormInputProps> = ({ name, ...props }) => {
       margin="dense"
       variant="filled"
       error={touched && !!error}
-      helperText={error}
+      helperText={touched && error}
       {...field}
       {...props}
     />

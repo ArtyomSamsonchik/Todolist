@@ -49,7 +49,7 @@ const Todolist: FC<{ todoId: string }> = React.memo(({ todoId }) => {
             disablePadding
             sx={{
               minHeight: '2em',
-              maxHeight: '12em',
+              maxHeight: '14em',
               overflow: 'auto',
               scrollbarWidth: 'thin',
             }}
