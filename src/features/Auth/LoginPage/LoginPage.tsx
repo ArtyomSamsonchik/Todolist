@@ -56,11 +56,11 @@ const LoginPage = () => {
         } as FormValues
       }
       validate={validateLogin(!!captchaUrl)}
-      onSubmit={async values => {
-        // TODO: consider displaying validation errors in the fields of the login form
-        const res = await dispatch(login(values))
+      onSubmit={async (values, { setErrors }) => {
+        const resultAction = await dispatch(login(values))
 
-        if (login.rejected.match(res) && res.payload?.scope === 'validation') {
+        if (login.rejected.match(resultAction) && resultAction.payload?.scope === 'validation') {
+          setErrors(resultAction.payload.fields)
         }
       }}
     >

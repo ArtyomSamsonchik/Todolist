@@ -10,6 +10,7 @@ export const authMe = createAppAsyncThunk('auth/me', async (_, { rejectWithValue
 
     if (data.resultCode === ResultCode.Ok) return { isLoggedIn: true, email: data.data.email }
 
+    // TODO: fix displaying of the authorization error
     // const { status, isLoggedIn } = getState().auth
     // const didNotInitialized = status === 'idle' && isLoggedIn === false,
     //   errorMessage = data.messages[0],
@@ -20,7 +21,7 @@ export const authMe = createAppAsyncThunk('auth/me', async (_, { rejectWithValue
     // return rejectWithValue(createAppError(errorMessage))
     return { isLoggedIn: false, email: null }
   } catch (e) {
-    const message = getThunkErrorMessage(e as Error)
+    const message = getThunkErrorMessage(e)
 
     return rejectWithValue(createAppError(message))
   }

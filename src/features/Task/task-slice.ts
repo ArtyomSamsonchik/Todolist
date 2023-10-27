@@ -45,7 +45,7 @@ export const fetchTasks = createAppAsyncThunk(
 
       return rejectWithValue(createAppError(data.error))
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -58,14 +58,13 @@ export const addTask = createAppAsyncThunk(
     try {
       const { todoId, title } = arg
       const { data } = await taskAPI.addTask(todoId, title)
+      const [message] = data.messages
 
       if (data.resultCode === ResultCode.Ok) return { todoId, task: data.data.item }
 
-      return rejectWithValue(
-        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
-      )
+      return rejectWithValue(createAppError(message, 'validation', { title: message }))
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -83,7 +82,7 @@ export const deleteTask = createAppAsyncThunk(
 
       return rejectWithValue(createAppError(data.messages[0]))
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -98,6 +97,7 @@ export const updateTask = createAppAsyncThunk(
   ) => {
     try {
       const { todoId, taskId, patch } = arg
+      // TODO: add typescript 'assertion' control flow helper to avoid type assertion via 'as' keyword
       const task = selectTask(getState(), taskId) as Task
       const model: TaskModel = {
         description: task.description,
@@ -110,14 +110,13 @@ export const updateTask = createAppAsyncThunk(
       }
 
       const { data } = await taskAPI.updateTask(todoId, taskId, model)
+      const [message] = data.messages
 
       if (data.resultCode === ResultCode.Ok) return data.data.item
 
-      return rejectWithValue(
-        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
-      )
+      return rejectWithValue(createAppError(message, 'validation', { title: message }))
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }

@@ -31,7 +31,7 @@ const isRejectedTodolistAction = (action: AnyAction): action is RejectedAction =
 // thunks
 export const fetchTodolists = createAppAsyncThunk(
   'todolist/fetchTodolists',
-  async (_, { dispatch, rejectWithValue, getState, requestId }) => {
+  async (_, { rejectWithValue, getState, requestId }) => {
     const { status, requestId: currentRequestId } = getState().todolists
 
     if (status !== 'pending' || currentRequestId !== requestId) return
@@ -41,7 +41,7 @@ export const fetchTodolists = createAppAsyncThunk(
 
       return todolists
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -52,14 +52,13 @@ export const addTodolist = createAppAsyncThunk(
   async (title: string, { rejectWithValue }) => {
     try {
       const { data } = await todolistAPI.createTodo(title)
+      let [message] = data.messages
 
       if (data.resultCode === ResultCode.Ok) return data.data.item
 
-      return rejectWithValue(
-        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
-      )
+      return rejectWithValue(createAppError(message, 'validation', { title: message }))
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -75,7 +74,7 @@ export const deleteTodolist = createAppAsyncThunk(
 
       return rejectWithValue(createAppError(data.messages[0]))
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -88,14 +87,13 @@ export const updateTodolistTitle = createAppAsyncThunk(
 
     try {
       const { data } = await todolistAPI.updateTodoTitle(todoId, title)
+      let [message] = data.messages
 
       if (data.resultCode === ResultCode.Ok) return { todoId, title }
 
-      return rejectWithValue(
-        createAppError(data.messages[0], data.fieldsErrors ? 'validation' : 'global')
-      )
+      return rejectWithValue(createAppError(message, 'validation', { title: message }))
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -164,7 +162,7 @@ const todolistSlice = createSlice({
           state.pendingEntityId = meta.arg
         }
       })
-      .addCase(fetchTasks.fulfilled, (state, { payload, meta }) => {
+      .addCase(fetchTasks.fulfilled, (state, { payload }) => {
         if (state.status === 'pending' && payload) {
           const { todoId, tasks } = payload
           const todolist = state.entities[todoId]

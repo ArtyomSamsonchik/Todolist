@@ -45,11 +45,21 @@ export const login = createAppAsyncThunk(
         }
 
         dispatch(setCaptchaUrl(captcha.url))
+
+        // Fix inconsistent error message. If a previous attempt to log in with the required captcha
+        // failed due to incorrect email or login, the response error code is still 10 (captcha is required).
+        const fields: Record<string, string> = /(email|password)/i.test(message)
+          ? { email: message, password: message }
+          : { captcha: message }
+
+        return rejectWithValue(createAppError(message, 'validation', fields))
       }
 
-      return rejectWithValue(createAppError(message))
+      return rejectWithValue(
+        createAppError(message, 'validation', { email: message, password: message })
+      )
     } catch (e) {
-      const message = getThunkErrorMessage(e as Error)
+      const message = getThunkErrorMessage(e)
 
       return rejectWithValue(createAppError(message))
     }
@@ -64,7 +74,7 @@ export const logout = createAppAsyncThunk('auth/logout', async (_, { rejectWithV
 
     return rejectWithValue(createAppError(data.messages[0]))
   } catch (e) {
-    const message = getThunkErrorMessage(e as Error)
+    const message = getThunkErrorMessage(e)
 
     return rejectWithValue(createAppError(message))
   }
