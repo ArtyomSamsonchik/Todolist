@@ -8,12 +8,15 @@ import ListItemText from '@mui/material/ListItemText'
 import { FC, MouseEvent } from 'react'
 import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
 import { logout, selectIsLoggedIn, selectUserEmail } from '../../features/Auth/auth-slice'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import IconButton from '@mui/material/IconButton'
+import Box from '@mui/material/Box'
 
 const drawerWidth = 280
 
 type AppBarMenuProps = {
   open: boolean
-  onClose?: DrawerProps['onClose']
+  onClose: DrawerProps['onClose']
 }
 
 const Sidebar: FC<AppBarMenuProps> = props => {
@@ -36,7 +39,13 @@ const Sidebar: FC<AppBarMenuProps> = props => {
       sx={{ [`& .${drawerClasses.paper}`]: { width: drawerWidth, maxWidth: '80%' } }}
       onClose={onClose}
     >
-      <List>
+      <Box px={1.5} py={0.5} display="flex" justifyContent="flex-end">
+        <IconButton onClick={e => onClose?.(e, 'backButtonClick' as any)}>
+          <ArrowBackIcon />
+        </IconButton>
+      </Box>
+
+      <List disablePadding>
         <ListItem disablePadding divider>
           <ListItemButton disabled={!isLoggedIn} onClick={handleLogout}>
             <ListItemIcon sx={{ minWidth: ({ spacing }) => spacing(6) }}>
