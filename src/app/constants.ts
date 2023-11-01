@@ -1,4 +1,5 @@
 export const BASIC_ERROR_MESSAGE = 'Something went wrong! Try again in a few minutes'
+export const NO_INTERNET_ERROR_MESSAGE = 'Cannot perform request! Check your internet connection.'
 
 export const PATH = {
   ROOT: '/',
