@@ -9,7 +9,7 @@ import { SxProps, Theme } from '@mui/material'
 import Box from '@mui/material/Box'
 import isAppError from '../../../utils/helpers/isAppError'
 
-type EditableSpanProps = {
+export type EditableSpanProps = {
   children: string
   disabled?: boolean
   changeTitle: (title: string) => Promise<any> | void
