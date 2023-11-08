@@ -9,11 +9,14 @@ import { useAppDispatch, useAppSelector } from '../../utils/hooks/hooks'
 import { deleteTask, selectTask, selectTaskIsLoading, updateTask } from './task-slice'
 import { TaskStatus } from './task-api'
 import EditableSpan from '../../common/components/EditableSpan/EditableSpan'
+import { SxProps, Theme } from '@mui/material'
 
 type TaskProps = {
   todoId: string
   taskId: string
 }
+
+const editableSpanSxProps: SxProps<Theme> = { width: '100%' }
 
 const Task: FC<TaskProps> = memo(({ todoId, taskId }) => {
   const task = useAppSelector(state => selectTask(state, taskId))
@@ -63,7 +66,7 @@ const Task: FC<TaskProps> = memo(({ todoId, taskId }) => {
             disabled={isLoading}
             changeTitle={changeTaskTitle}
             onToggleEditMode={setIsEditing}
-            sx={{ width: '100%' }}
+            sx={editableSpanSxProps}
           >
             {task.title}
           </EditableSpan>

@@ -2,13 +2,18 @@ import React, { FC, useCallback, useState } from 'react'
 import IconButton from '@mui/material/IconButton'
 import DeleteIcon from '@mui/icons-material/Delete'
 import ListItemText from '@mui/material/ListItemText'
-import EditableSpan from '../../../../common/components/EditableSpan/EditableSpan'
+import EditableSpan, {
+  EditableSpanProps,
+} from '../../../../common/components/EditableSpan/EditableSpan'
 import ListItem from '@mui/material/ListItem'
 import { SxProps } from '@mui/material'
 import { deleteTodolist, TodolistDomain, updateTodolistTitle } from '../../todolist-slice'
 import { useAppDispatch } from '../../../../utils/hooks/hooks'
 
-const EditableSpanSxProps: SxProps = { variant: 'h6' }
+const editableSpanProps: Partial<EditableSpanProps> = {
+  typographyProps: { variant: 'h6' },
+  sx: { ' & .MuiTypography-root': { pt: 0.5 } },
+}
 
 type TodolistHeaderProps = {
   todolist: TodolistDomain
@@ -42,11 +47,10 @@ const TodolistHeader: FC<TodolistHeaderProps> = ({ todolist, disabled }) => {
         disableTypography
         primary={
           <EditableSpan
-            typographyProps={EditableSpanSxProps}
             disabled={disabled}
             changeTitle={changeTodolistTitle}
             onToggleEditMode={setIsEditing}
-            sx={{ ' & .MuiTypography-root': { pt: 0.5 } }}
+            {...editableSpanProps}
           >
             {todolist.title}
           </EditableSpan>
